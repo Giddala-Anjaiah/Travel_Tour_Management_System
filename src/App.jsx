@@ -32,7 +32,7 @@ function App() {
         <div className="navbar-content">
           <div className="logo">
             <Plane className="h-8 w-8" style={{ color: '#4f46e5' }} />
-            <span className="logo-text">TourManager</span>
+            <span className="logo-text">Travel Around Us</span>
           </div>
           
           {/* Desktop Menu */}
@@ -456,7 +456,7 @@ function App() {
         <div className="footer-content">
           <div className="footer-logo">
             <Plane className="h-6 w-6" style={{ color: '#a5b4fc' }} />
-            <span style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>TourManager</span>
+            <span style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>Travel Around Us</span>
           </div>
           <div className="footer-links">
             <a href="#">Privacy</a>
