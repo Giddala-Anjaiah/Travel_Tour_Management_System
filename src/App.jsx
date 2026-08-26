@@ -447,7 +447,7 @@ function App() {
         <div className="cta-content">
           <h2>Ready to explore Your Dream Destination ?</h2>
           <p>Join thousands of travellers using  our TourManager platform to achieve their dream Destinations</p>
-          <button>Start Free Trial</button>
+          <a href="#signup"><button>Start Free Trial</button></a>
         </div>
       </section>
 

@@ -360,6 +360,10 @@ body {
   margin-bottom: 2rem;
 }
 
+.cta a {
+  text-decoration: none;
+}
+
 .cta button {
   padding: 1rem 2rem;
   background: white;
