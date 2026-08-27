@@ -1,6 +1,9 @@
+import React from 'react'
 import { MapPin, Calendar, Users, CreditCard, BarChart3, Star, ArrowRight, Plane, CheckCircle, Menu, X } from 'lucide-react'
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import './index.css'
+import Footer from './Footer'
 
 function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -40,11 +43,13 @@ function App() {
             <a href="#">Home</a>
             <a href="#features">Features</a>
             <a href="#about">About Us</a>
+            
             <a href="#prices">Prices</a>
             <a href="#contact">Contact</a>
+            <a href="#how-it-works">How It Works</a>
             <div className="nav-buttons">
-              <a href="#login" className="btn-login">Login</a>
-              <a href="#signup" className="btn-signup">Sign Up</a>
+              <Link to="/login" className="btn-login">Login</Link>
+              <Link to="/signup" className="btn-signup">Sign Up</Link>
             </div>
           </div>
 
@@ -63,10 +68,12 @@ function App() {
             <a href="#">Home</a>
             <a href="#features">Features</a>
             <a href="#about">About Us</a>
+            
             <a href="#prices">Prices</a>
             <a href="#contact">Contact</a>
-            <a href="#login" className="btn-login">Login</a>
-            <a href="#signup" className="btn-signup">Sign Up</a>
+            <a href="#how-it-works">How It Works</a>
+            <Link to="/login" className="btn-login">Login</Link>
+            <Link to="/signup" className="btn-signup">Sign Up</Link>
           </div>
         )}
       </nav>
@@ -77,10 +84,10 @@ function App() {
           <h1>Plan Journeys, <span>Create Memories</span></h1>
           <p>Create Tour Packages. Manage bookings, customers, itineraries, payments and travel operations, with ease.</p>
           <div className="hero-buttons">
-            <button className="btn-primary">
+            <Link to="/login" className="btn-primary">
               Get Started <ArrowRight className="h-5 w-5" />
-            </button>
-            <button className="btn-secondary">Learn More</button>
+            </Link>
+           
           </div>
         </div>
       </section>
@@ -135,20 +142,32 @@ function App() {
             </div>
             <div className="about-stats">
               <div className="stat-item">
-                <span className="stat-number">5000+</span>
-                <span className="stat-label">Happy Clients</span>
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=400&h=300&fit=crop" alt="Happy Clients" className="stat-image" />
+                <div className="stat-content">
+                  <span className="stat-number">5000+</span>
+                  <span className="stat-label">Happy Clients</span>
+                </div>
               </div>
               <div className="stat-item">
-                <span className="stat-number">1M+</span>
-                <span className="stat-label">Bookings Managed</span>
+                <img src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=300&fit=crop" alt="Bookings Managed" className="stat-image" />
+                <div className="stat-content">
+                  <span className="stat-number">1M+</span>
+                  <span className="stat-label">Bookings Managed</span>
+                </div>
               </div>
               <div className="stat-item">
-                <span className="stat-number">500+</span>
-                <span className="stat-label">Cities</span>
+                <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=300&fit=crop" alt="Cities" className="stat-image" />
+                <div className="stat-content">
+                  <span className="stat-number">500+</span>
+                  <span className="stat-label">Cities</span>
+                </div>
               </div>
               <div className="stat-item">
-                <span className="stat-number">99%</span>
-                <span className="stat-label">Satisfaction Rate</span>
+                <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=400&h=300&fit=crop" alt="Satisfaction Rate" className="stat-image" />
+                <div className="stat-content">
+                  <span className="stat-number">99%</span>
+                  <span className="stat-label">Satisfaction Rate</span>
+                </div>
               </div>
             </div>
           </div>
@@ -341,83 +360,8 @@ function App() {
         </div>
       </section>
 
-      {/* Login Section */}
-      <section id="login" className="auth-section">
-        <div className="auth-content">
-          <div className="auth-card">
-            <div className="auth-header">
-              <Plane className="h-10 w-10" style={{ color: '#4f46e5' }} />
-              <h2>Welcome Back</h2>
-              <p>Sign in to your account</p>
-            </div>
-            <form className="auth-form">
-              <div className="form-group">
-                <label>Email</label>
-                <input type="email" placeholder="your@email.com" />
-              </div>
-              <div className="form-group">
-                <label>Password</label>
-                <input type="password" placeholder="••••••••" />
-              </div>
-              <div className="form-options">
-                <label>
-                  <input type="checkbox" />
-                  Remember me
-                </label>
-                <a href="#">Forgot password?</a>
-              </div>
-              <button type="submit" className="auth-btn">Sign In</button>
-            </form>
-            <p className="auth-footer">
-              Don't have an account? <a href="#signup">Sign up</a>
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Signup Section */}
-      <section id="signup" className="auth-section">
-        <div className="auth-content">
-          <div className="auth-card">
-            <div className="auth-header">
-              <Plane className="h-10 w-10" style={{ color: '#4f46e5' }} />
-              <h2>Create Account</h2>
-              <p>Start your free trial today</p>
-            </div>
-            <form className="auth-form">
-              <div className="form-group">
-                <label>Full Name</label>
-                <input type="text" placeholder="John Doe" />
-              </div>
-              <div className="form-group">
-                <label>Email</label>
-                <input type="email" placeholder="your@email.com" />
-              </div>
-              <div className="form-group">
-                <label>Password</label>
-                <input type="password" placeholder="••••••••" />
-              </div>
-              <div className="form-group">
-                <label>Confirm Password</label>
-                <input type="password" placeholder="••••••••" />
-              </div>
-              <div className="form-options">
-                <label>
-                  <input type="checkbox" />
-                  I agree to the <a href="#">Terms of Service</a>
-                </label>
-              </div>
-              <button type="submit" className="auth-btn">Create Account</button>
-            </form>
-            <p className="auth-footer">
-              Already have an account? <a href="#login">Sign in</a>
-            </p>
-          </div>
-        </div>
-      </section>
-
       {/* How It Works Section */}
-      <section className="how-it-works">
+      <section id="how-it-works" className="how-it-works">
         <div className="how-it-works-content">
           <div className="how-it-works-header">
             <h2>How It Works</h2>
@@ -426,17 +370,17 @@ function App() {
           
           <div className="steps-container">
             {steps.map((step, index) => (
-              <div key={index} className="step-item">
-                <div className="step-content">
+              <React.Fragment key={index}>
+                <div className="step-item">
                   <div className="step-icon">
-                    <step.icon className="h-8 w-8" />
+                    <step.icon className="h-6 w-6" />
                   </div>
                   <span className="step-label">{step.step}</span>
                 </div>
                 {index < steps.length - 1 && (
-                  <ArrowRight className="h-6 w-6 step-arrow" />
+                  <span className="step-arrow">→</span>
                 )}
-              </div>
+              </React.Fragment>
             ))}
           </div>
         </div>
@@ -447,27 +391,12 @@ function App() {
         <div className="cta-content">
           <h2>Ready to explore Your Dream Destination ?</h2>
           <p>Join thousands of travellers using  our TourManager platform to achieve their dream Destinations</p>
-          <a href="#signup"><button>Start Free Trial</button></a>
+          <Link to="/signup"><button>Start Free Trial</button></Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="footer">
-        <div className="footer-content">
-          <div className="footer-logo">
-            <Plane className="h-6 w-6" style={{ color: '#a5b4fc' }} />
-            <span style={{ fontSize: '1.125rem', fontWeight: 'bold' }}>Travel Around Us</span>
-          </div>
-          <div className="footer-links">
-            <a href="#">Privacy</a>
-            <a href="#">Terms</a>
-            <a href="#">Support</a>
-          </div>
-        </div>
-        <div className="footer-bottom">
-          © 2026 TourManager. All rights reserved.
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
