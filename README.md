@@ -11,3 +11,10 @@ Travel Analytics – Provides useful insights and information about tours, booki
 Reviews & Ratings – Allows customers to share their experiences through reviews and ratings.
 
 The main goal of today's work was to create a professional and engaging first impression of the project while giving users a quick understanding of the system's major features. This also helped me improve my practical experience with React components, Vite, CSS styling, and structuring a modern landing page.
+
+day2:i work with login pages with mongodb and backend setup
+Day3: i worked on dashboards with static data along with my key features in each dashboard and also 
+Added new customer dashboard components (Profile Management, Destination Exploration, Tour Packages, Itineraries, Hotel Search & Availability, Bookings & Payments, Invoices & Booking History, Wishlist & Reviews & Notifications)
+Added admin dashboard components
+Enhanced CSS styles for professional UI design
+Fixed white screen issue by adding missing CSS classes
