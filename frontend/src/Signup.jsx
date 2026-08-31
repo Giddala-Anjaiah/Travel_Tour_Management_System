@@ -42,7 +42,7 @@ const Signup = () => {
       const data = await response.json()
 
       if (response.ok) {
-        setSuccess('Account created successfully! Please login.')
+        setSuccess(data.message || 'Account created successfully! Please login.')
         setFullName('')
         setEmail('')
         setPhone('')

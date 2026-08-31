@@ -1,5 +1,5 @@
 import React from 'react'
-import { User, MapPin, Calendar, CreditCard, Heart, LogOut, Search } from 'lucide-react'
+import { User, MapPin, Calendar, CreditCard, Heart, LogOut, Search, Building, Ticket, FileText, Bell, Star } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Dashboard.css'
 
@@ -23,23 +23,35 @@ const CustomerDashboard = () => {
         <nav className="sidebar-nav">
           <Link to="/customer/dashboard" className="nav-item active">
             <MapPin className="h-5 w-5" />
-            <span>Explore Tours</span>
+            <span>Destination Exploration</span>
+          </Link>
+          <Link to="/customer/packages" className="nav-item">
+            <Ticket className="h-5 w-5" />
+            <span>Tour Packages</span>
+          </Link>
+          <Link to="/customer/itineraries" className="nav-item">
+            <Calendar className="h-5 w-5" />
+            <span>Itineraries</span>
+          </Link>
+          <Link to="/customer/hotels" className="nav-item">
+            <Building className="h-5 w-5" />
+            <span>Hotel Search & Availability</span>
           </Link>
           <Link to="/customer/bookings" className="nav-item">
             <Calendar className="h-5 w-5" />
-            <span>My Bookings</span>
+            <span>Bookings & Payments</span>
+          </Link>
+          <Link to="/customer/invoices" className="nav-item">
+            <FileText className="h-5 w-5" />
+            <span>Invoices & Booking History</span>
           </Link>
           <Link to="/customer/wishlist" className="nav-item">
             <Heart className="h-5 w-5" />
-            <span>Wishlist</span>
-          </Link>
-          <Link to="/customer/payments" className="nav-item">
-            <CreditCard className="h-5 w-5" />
-            <span>Payments</span>
+            <span>Wishlist, Reviews & Notifications</span>
           </Link>
           <Link to="/customer/profile" className="nav-item">
             <User className="h-5 w-5" />
-            <span>Profile</span>
+            <span>Profile Management</span>
           </Link>
         </nav>
         <button onClick={handleLogout} className="logout-btn">
@@ -50,9 +62,19 @@ const CustomerDashboard = () => {
 
       <main className="dashboard-main">
         <header className="dashboard-header">
-          <h1>Customer Dashboard</h1>
-          <div className="user-info">
-            <span>Welcome, {user.fullName || 'Customer'}</span>
+          <div>
+            <h1>Customer Dashboard</h1>
+            <p className="header-subtitle">Plan, book, and manage your perfect journey</p>
+          </div>
+          <div className="header-actions">
+            <div className="user-info">
+              <User className="h-5 w-5" />
+              <span>Welcome, {user.fullName || 'Customer'}</span>
+            </div>
+            <button onClick={handleLogout} className="btn-logout-header">
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </button>
           </div>
         </header>
 
