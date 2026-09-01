@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { MapPin, FileText, Calendar, Download, Search, Filter, DollarSign, CheckCircle, Clock, Eye, Printer, Sparkles, Shield, Receipt, ArrowRight, Download as DownloadIcon, FileText as FileIcon, Calendar as CalendarIcon, AlertCircle } from 'lucide-react'
+import { FileText, Calendar, Search, CheckCircle, Clock, Eye, Printer, Sparkles, Shield, Receipt, ArrowRight, Download as DownloadIcon, Calendar as CalendarIcon, AlertCircle } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import CustomerLayout from './CustomerLayout'
 import '../Dashboard.css'
 
 const InvoicesBookingHistory = () => {
@@ -20,7 +21,7 @@ const InvoicesBookingHistory = () => {
       amount: 31998,
       status: 'paid',
       paidDate: '2024-08-25',
-      image: '🏖️',
+      image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80',
       items: [
         { description: 'Package Cost (2 persons)', amount: 30000 },
         { description: 'Service Charges', amount: 1998 }
@@ -35,7 +36,7 @@ const InvoicesBookingHistory = () => {
       amount: 99996,
       status: 'paid',
       paidDate: '2024-08-30',
-      image: '🌴',
+      image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80',
       items: [
         { description: 'Package Cost (4 persons)', amount: 96000 },
         { description: 'Service Charges', amount: 3996 }
@@ -50,7 +51,7 @@ const InvoicesBookingHistory = () => {
       amount: 107997,
       status: 'pending',
       paidDate: null,
-      image: '🏔️',
+      image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80',
       items: [
         { description: 'Package Cost (3 persons)', amount: 105000 },
         { description: 'Service Charges', amount: 2997 }
@@ -65,7 +66,7 @@ const InvoicesBookingHistory = () => {
       amount: 59998,
       status: 'partial',
       paidDate: null,
-      image: '🏰',
+      image: 'https://images.unsplash.com/photo-1477587458222-8fc769eb531f?auto=format&fit=crop&w=800&q=80',
       items: [
         { description: 'Package Cost (2 persons)', amount: 58000 },
         { description: 'Service Charges', amount: 1998 }
@@ -123,67 +124,23 @@ const InvoicesBookingHistory = () => {
   }
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <FileIcon className="h-8 w-8" />
-          <h2>Customer Portal</h2>
+    <CustomerLayout
+      active="invoices"
+      title="Invoices & history"
+      subtitle="Payment records for every booking"
+      actions={
+        <div className="header-stats">
+          <div className="stat-badge">
+            <Sparkles className="h-4 w-4" />
+            <span>{invoices.length} invoices</span>
+          </div>
+          <div className="stat-badge">
+            <Shield className="h-4 w-4" />
+            <span>Digital records</span>
+          </div>
         </div>
-        <nav className="sidebar-nav">
-          <Link to="/customer/dashboard" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Destination Exploration</span>
-          </Link>
-          <Link to="/customer/packages" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Tour Packages</span>
-          </Link>
-          <Link to="/customer/itineraries" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Itineraries</span>
-          </Link>
-          <Link to="/customer/hotels" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Hotel Search & Availability</span>
-          </Link>
-          <Link to="/customer/bookings" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Bookings & Payments</span>
-          </Link>
-          <Link to="/customer/invoices" className="nav-item active">
-            <FileText className="h-5 w-5" />
-            <span>Invoices & Booking History</span>
-          </Link>
-          <Link to="/customer/wishlist" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Wishlist, Reviews & Notifications</span>
-          </Link>
-          <Link to="/customer/profile" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Profile Management</span>
-          </Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main">
-        <header className="dashboard-header">
-          <div>
-            <h1>Invoices & Booking History</h1>
-            <p className="header-subtitle">Track your payments and booking records</p>
-          </div>
-          <div className="header-stats">
-            <div className="stat-badge">
-              <Sparkles className="h-4 w-4" />
-              <span>{invoices.length} Invoices</span>
-            </div>
-            <div className="stat-badge">
-              <Shield className="h-4 w-4" />
-              <span>Digital Records</span>
-            </div>
-          </div>
-        </header>
-
-        <div className="dashboard-content">
+      }
+    >
           <div className="stats-grid enhanced">
             <div className="stat-card enhanced">
               <Receipt className="stat-icon" />
@@ -259,7 +216,7 @@ const InvoicesBookingHistory = () => {
               <div key={invoice.id} className="invoice-card enhanced">
                 <div className="invoice-header enhanced">
                   <div className="invoice-image-wrapper">
-                    <span className="invoice-emoji">{invoice.image}</span>
+                    <img className="cp-cover" src={invoice.image} alt={invoice.package} />
                   </div>
                   <div className="invoice-info">
                     <h3>{invoice.package}</h3>
@@ -346,9 +303,6 @@ const InvoicesBookingHistory = () => {
               </div>
             ))}
           </div>
-        </div>
-      </main>
-
       {showInvoiceModal && selectedInvoice && (
         <div className="modal-overlay">
           <div className="modal invoice-modal">
@@ -441,7 +395,7 @@ const InvoicesBookingHistory = () => {
           </div>
         </div>
       )}
-    </div>
+    </CustomerLayout>
   )
 }
 

@@ -61,6 +61,11 @@ const User = mongoose.model('User', userSchema);
 
 // Destination/Package Schema
 const packageSchema = new mongoose.Schema({
+  operatorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   name: {
     type: String,
     required: true
@@ -95,7 +100,34 @@ const packageSchema = new mongoose.Schema({
   description: String,
   inclusions: [String],
   image: String,
+  images: [String],
+  category: String,
+  shortDescription: String,
+  highlights: [String],
+  exclusions: [String],
+  terms: String,
+  cancellationPolicy: String,
+  pickupInfo: String,
+  startingLocation: String,
+  transportType: String,
+  minTravelers: {
+    type: Number,
+    default: 1
+  },
+  maxTravelers: {
+    type: Number,
+    default: 20
+  },
+  publishedStatus: {
+    type: String,
+    enum: ['draft', 'published', 'unpublished'],
+    default: 'draft'
+  },
   createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }
@@ -105,13 +137,19 @@ const Package = mongoose.model('Package', packageSchema);
 
 // Itinerary Schema
 const itinerarySchema = new mongoose.Schema({
+  operatorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
   name: {
     type: String,
     required: true
   },
   packageId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Package'
+    ref: 'Package',
+    required: true
   },
   packageName: String,
   days: {
@@ -127,7 +165,24 @@ const itinerarySchema = new mongoose.Schema({
     enum: ['active', 'inactive'],
     default: 'active'
   },
+  dayDetails: [{
+    dayNumber: Number,
+    title: String,
+    date: Date,
+    description: String,
+    location: String,
+    activities: [String],
+    meals: [String],
+    accommodation: String,
+    transportation: String,
+    images: [String],
+    notes: String
+  }],
   createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
     type: Date,
     default: Date.now
   }
@@ -213,6 +268,21 @@ const Room = mongoose.model('Room', roomSchema);
 
 // Booking Schema
 const bookingSchema = new mongoose.Schema({
+  operatorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  customerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  packageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Package',
+    required: true
+  },
   customer: {
     type: String,
     required: true
@@ -221,6 +291,7 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  phone: String,
   package: {
     type: String,
     required: true
@@ -229,24 +300,41 @@ const bookingSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  travelers: {
+    type: Number,
+    default: 1
+  },
   amount: {
     type: Number,
     required: true
   },
+  paidAmount: {
+    type: Number,
+    default: 0
+  },
   status: {
     type: String,
-    enum: ['confirmed', 'pending', 'cancelled'],
+    enum: ['confirmed', 'pending', 'cancelled', 'completed', 'rejected'],
     default: 'pending'
   },
   paymentStatus: {
     type: String,
-    enum: ['paid', 'pending', 'refunded'],
+    enum: ['paid', 'pending', 'partial', 'refunded', 'failed'],
     default: 'pending'
   },
   bookingDate: {
     type: Date,
     default: Date.now
-  }
+  },
+  bookingId: {
+    type: String,
+    unique: true
+  },
+  timeline: [{
+    status: String,
+    date: Date,
+    note: String
+  }]
 });
 
 const Booking = mongoose.model('Booking', bookingSchema);
@@ -293,6 +381,21 @@ const Invoice = mongoose.model('Invoice', invoiceSchema);
 
 // Review Schema
 const reviewSchema = new mongoose.Schema({
+  operatorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  customerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  packageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Package',
+    required: true
+  },
   customer: {
     type: String,
     required: true
@@ -310,6 +413,10 @@ const reviewSchema = new mongoose.Schema({
   comment: {
     type: String,
     required: true
+  },
+  response: {
+    text: String,
+    date: Date
   },
   status: {
     type: String,
@@ -414,6 +521,177 @@ const settingsSchema = new mongoose.Schema({
 
 const Settings = mongoose.model('Settings', settingsSchema);
 
+// Operator Profile Schema
+const operatorProfileSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique: true
+  },
+  companyName: String,
+  logo: String,
+  businessAddress: String,
+  city: String,
+  state: String,
+  country: String,
+  postalCode: String,
+  website: String,
+  description: String,
+  businessRegNumber: String,
+  verificationStatus: {
+    type: String,
+    enum: ['pending', 'verified', 'rejected'],
+    default: 'pending'
+  },
+  alternatePhone: String,
+  licenseNumber: String,
+  taxId: String,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const OperatorProfile = mongoose.model('OperatorProfile', operatorProfileSchema);
+
+// Notification Schema
+const notificationSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  type: {
+    type: String,
+    enum: ['booking', 'payment', 'review', 'system', 'offer', 'availability'],
+    required: true
+  },
+  title: String,
+  message: String,
+  relatedId: mongoose.Schema.Types.ObjectId,
+  read: {
+    type: Boolean,
+    default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Notification = mongoose.model('Notification', notificationSchema);
+
+// Pricing Schema
+const pricingSchema = new mongoose.Schema({
+  packageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Package',
+    required: true
+  },
+  operatorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  basePrice: {
+    type: Number,
+    required: true
+  },
+  adultPrice: Number,
+  childPrice: Number,
+  infantPrice: Number,
+  singleOccupancyPrice: Number,
+  groupPricing: [{
+    minPeople: Number,
+    pricePerPerson: Number
+  }],
+  discount: {
+    type: Number,
+    default: 0
+  },
+  promotionalPrice: Number,
+  tax: {
+    type: Number,
+    default: 0
+  },
+  serviceFee: {
+    type: Number,
+    default: 0
+  },
+  validFrom: Date,
+  validUntil: Date,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Pricing = mongoose.model('Pricing', pricingSchema);
+
+// Availability Schema
+const availabilitySchema = new mongoose.Schema({
+  packageId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Package',
+    required: true
+  },
+  operatorId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  startDate: {
+    type: Date,
+    required: true
+  },
+  endDate: {
+    type: Date,
+    required: true
+  },
+  totalSeats: {
+    type: Number,
+    required: true
+  },
+  availableSeats: {
+    type: Number,
+    required: true
+  },
+  soldSeats: {
+    type: Number,
+    default: 0
+  },
+  bookingCutoffDate: Date,
+  minGroupSize: {
+    type: Number,
+    default: 1
+  },
+  maxGroupSize: Number,
+  status: {
+    type: String,
+    enum: ['available', 'limited', 'full', 'closed', 'past'],
+    default: 'available'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+const Availability = mongoose.model('Availability', availabilitySchema);
+
 function pickUpdates(body, keys) {
   const updates = {};
   for (const key of keys) {
@@ -441,6 +719,57 @@ function requireAdmin(req, res, next) {
     return res.status(403).json({ message: 'Admin access required' });
   }
   next();
+}
+
+function requireTourOperator(req, res, next) {
+  if (req.user?.role !== 'tour_operator') {
+    return res.status(403).json({ message: 'Tour operator access required' });
+  }
+  next();
+}
+
+function requireCustomer(req, res, next) {
+  if (req.user?.role !== 'customer') {
+    return res.status(403).json({ message: 'Customer access required' });
+  }
+  next();
+}
+
+async function requireOperatorOwnership(req, res, next) {
+  const resourceId = req.params.id || req.params.packageId || req.params.bookingId;
+  const resourceType = req.path.includes('packages') ? 'Package' : 
+                        req.path.includes('bookings') ? 'Booking' : 
+                        req.path.includes('itineraries') ? 'Itinerary' : 
+                        req.path.includes('reviews') ? 'Review' : null;
+  
+  if (!resourceType || !resourceId) {
+    return next();
+  }
+
+  try {
+    let resource;
+    if (resourceType === 'Package') {
+      resource = await Package.findById(resourceId);
+    } else if (resourceType === 'Booking') {
+      resource = await Booking.findById(resourceId);
+    } else if (resourceType === 'Itinerary') {
+      resource = await Itinerary.findById(resourceId);
+    } else if (resourceType === 'Review') {
+      resource = await Review.findById(resourceId);
+    }
+
+    if (!resource) {
+      return res.status(404).json({ message: 'Resource not found' });
+    }
+
+    if (resource.operatorId && resource.operatorId.toString() !== req.user.userId) {
+      return res.status(403).json({ message: 'You do not have permission to access this resource' });
+    }
+
+    next();
+  } catch (error) {
+    return res.status(500).json({ message: 'Error checking ownership' });
+  }
 }
 
 function rangeStart(range) {
@@ -1144,6 +1473,537 @@ app.get('/api/admin/analytics', async (req, res) => {
   } catch (error) {
     console.error('Analytics error:', error);
     res.status(500).json({ message: 'Error fetching analytics' });
+  }
+});
+
+// Tour Operator Routes
+app.use('/api/operator', authenticate, requireTourOperator);
+
+// Operator Profile Routes
+app.get('/api/operator/profile', async (req, res) => {
+  try {
+    let profile = await OperatorProfile.findOne({ userId: req.user.userId });
+    if (!profile) {
+      profile = new OperatorProfile({ userId: req.user.userId });
+      await profile.save();
+    }
+    const user = await User.findById(req.user.userId).select('-password');
+    res.status(200).json({ profile, user });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching profile' });
+  }
+});
+
+app.put('/api/operator/profile', async (req, res) => {
+  try {
+    const updates = pickUpdates(req.body, [
+      'companyName', 'logo', 'businessAddress', 'city', 'state', 'country',
+      'postalCode', 'website', 'description', 'businessRegNumber', 'alternatePhone',
+      'licenseNumber', 'taxId'
+    ]);
+    updates.updatedAt = new Date();
+    let profile = await OperatorProfile.findOneAndUpdate(
+      { userId: req.user.userId },
+      updates,
+      { new: true, upsert: true, setDefaultsOnInsert: true }
+    );
+    
+    if (req.body.fullName || req.body.email || req.body.phone) {
+      const userUpdates = pickUpdates(req.body, ['fullName', 'email', 'phone']);
+      if (req.body.password) {
+        userUpdates.password = await bcrypt.hash(req.body.password, 10);
+      }
+      await User.findByIdAndUpdate(req.user.userId, userUpdates);
+    }
+    
+    res.status(200).json({ message: 'Profile updated successfully', profile });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating profile' });
+  }
+});
+
+// Operator Package Routes
+app.get('/api/operator/packages', async (req, res) => {
+  try {
+    const packages = await Package.find({ operatorId: req.user.userId }).sort({ createdAt: -1 });
+    res.status(200).json({ packages });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching packages' });
+  }
+});
+
+app.post('/api/operator/packages', async (req, res) => {
+  try {
+    const newPackage = new Package({
+      ...req.body,
+      operatorId: req.user.userId,
+      updatedAt: new Date()
+    });
+    await newPackage.save();
+    res.status(201).json({ message: 'Package created successfully', package: newPackage });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating package' });
+  }
+});
+
+app.get('/api/operator/packages/:id', async (req, res) => {
+  try {
+    const pkg = await Package.findOne({ _id: req.params.id, operatorId: req.user.userId });
+    if (!pkg) {
+      return res.status(404).json({ message: 'Package not found' });
+    }
+    res.status(200).json({ package: pkg });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching package' });
+  }
+});
+
+app.put('/api/operator/packages/:id', async (req, res) => {
+  try {
+    const updates = pickUpdates(req.body, [
+      'name', 'destination', 'duration', 'price', 'status', 'description',
+      'inclusions', 'image', 'images', 'category', 'shortDescription', 'highlights',
+      'exclusions', 'terms', 'cancellationPolicy', 'pickupInfo', 'startingLocation',
+      'transportType', 'minTravelers', 'maxTravelers', 'publishedStatus'
+    ]);
+    updates.updatedAt = new Date();
+    const pkg = await Package.findOneAndUpdate(
+      { _id: req.params.id, operatorId: req.user.userId },
+      updates,
+      { new: true, runValidators: true }
+    );
+    if (!pkg) {
+      return res.status(404).json({ message: 'Package not found' });
+    }
+    res.status(200).json({ message: 'Package updated successfully', package: pkg });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating package' });
+  }
+});
+
+app.delete('/api/operator/packages/:id', async (req, res) => {
+  try {
+    const pkg = await Package.findOneAndDelete({ _id: req.params.id, operatorId: req.user.userId });
+    if (!pkg) {
+      return res.status(404).json({ message: 'Package not found' });
+    }
+    res.status(200).json({ message: 'Package deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting package' });
+  }
+});
+
+// Operator Itinerary Routes
+app.get('/api/operator/itineraries', async (req, res) => {
+  try {
+    const itineraries = await Itinerary.find({ operatorId: req.user.userId }).sort({ createdAt: -1 });
+    res.status(200).json({ itineraries });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching itineraries' });
+  }
+});
+
+app.get('/api/operator/itineraries/package/:packageId', async (req, res) => {
+  try {
+    const itinerary = await Itinerary.findOne({ packageId: req.params.packageId, operatorId: req.user.userId });
+    res.status(200).json({ itinerary });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching itinerary' });
+  }
+});
+
+app.post('/api/operator/itineraries', async (req, res) => {
+  try {
+    const newItinerary = new Itinerary({
+      ...req.body,
+      operatorId: req.user.userId,
+      updatedAt: new Date()
+    });
+    await newItinerary.save();
+    res.status(201).json({ message: 'Itinerary created successfully', itinerary: newItinerary });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating itinerary' });
+  }
+});
+
+app.put('/api/operator/itineraries/:id', async (req, res) => {
+  try {
+    const updates = pickUpdates(req.body, ['name', 'packageId', 'packageName', 'days', 'hotels', 'status', 'dayDetails']);
+    updates.updatedAt = new Date();
+    const itinerary = await Itinerary.findOneAndUpdate(
+      { _id: req.params.id, operatorId: req.user.userId },
+      updates,
+      { new: true }
+    );
+    if (!itinerary) {
+      return res.status(404).json({ message: 'Itinerary not found' });
+    }
+    res.status(200).json({ message: 'Itinerary updated successfully', itinerary });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating itinerary' });
+  }
+});
+
+app.delete('/api/operator/itineraries/:id', async (req, res) => {
+  try {
+    const itinerary = await Itinerary.findOneAndDelete({ _id: req.params.id, operatorId: req.user.userId });
+    if (!itinerary) {
+      return res.status(404).json({ message: 'Itinerary not found' });
+    }
+    res.status(200).json({ message: 'Itinerary deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting itinerary' });
+  }
+});
+
+// Operator Pricing Routes
+app.get('/api/operator/pricing/package/:packageId', async (req, res) => {
+  try {
+    const pricing = await Pricing.findOne({ packageId: req.params.packageId, operatorId: req.user.userId });
+    res.status(200).json({ pricing });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching pricing' });
+  }
+});
+
+app.post('/api/operator/pricing', async (req, res) => {
+  try {
+    const newPricing = new Pricing({
+      ...req.body,
+      operatorId: req.user.userId,
+      updatedAt: new Date()
+    });
+    await newPricing.save();
+    res.status(201).json({ message: 'Pricing created successfully', pricing: newPricing });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating pricing' });
+  }
+});
+
+app.put('/api/operator/pricing/:id', async (req, res) => {
+  try {
+    const updates = pickUpdates(req.body, [
+      'basePrice', 'adultPrice', 'childPrice', 'infantPrice', 'singleOccupancyPrice',
+      'groupPricing', 'discount', 'promotionalPrice', 'tax', 'serviceFee',
+      'validFrom', 'validUntil'
+    ]);
+    updates.updatedAt = new Date();
+    const pricing = await Pricing.findOneAndUpdate(
+      { _id: req.params.id, operatorId: req.user.userId },
+      updates,
+      { new: true }
+    );
+    if (!pricing) {
+      return res.status(404).json({ message: 'Pricing not found' });
+    }
+    res.status(200).json({ message: 'Pricing updated successfully', pricing });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating pricing' });
+  }
+});
+
+// Operator Availability Routes
+app.get('/api/operator/availability/package/:packageId', async (req, res) => {
+  try {
+    const availability = await Availability.find({ packageId: req.params.packageId, operatorId: req.user.userId });
+    res.status(200).json({ availability });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching availability' });
+  }
+});
+
+app.post('/api/operator/availability', async (req, res) => {
+  try {
+    const newAvailability = new Availability({
+      ...req.body,
+      operatorId: req.user.userId,
+      updatedAt: new Date()
+    });
+    await newAvailability.save();
+    res.status(201).json({ message: 'Availability created successfully', availability: newAvailability });
+  } catch (error) {
+    res.status(500).json({ message: 'Error creating availability' });
+  }
+});
+
+app.put('/api/operator/availability/:id', async (req, res) => {
+  try {
+    const updates = pickUpdates(req.body, [
+      'startDate', 'endDate', 'totalSeats', 'availableSeats', 'soldSeats',
+      'bookingCutoffDate', 'minGroupSize', 'maxGroupSize', 'status'
+    ]);
+    updates.updatedAt = new Date();
+    const availability = await Availability.findOneAndUpdate(
+      { _id: req.params.id, operatorId: req.user.userId },
+      updates,
+      { new: true }
+    );
+    if (!availability) {
+      return res.status(404).json({ message: 'Availability not found' });
+    }
+    res.status(200).json({ message: 'Availability updated successfully', availability });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating availability' });
+  }
+});
+
+app.delete('/api/operator/availability/:id', async (req, res) => {
+  try {
+    const availability = await Availability.findOneAndDelete({ _id: req.params.id, operatorId: req.user.userId });
+    if (!availability) {
+      return res.status(404).json({ message: 'Availability not found' });
+    }
+    res.status(200).json({ message: 'Availability deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting availability' });
+  }
+});
+
+// Operator Booking Routes
+app.get('/api/operator/bookings', async (req, res) => {
+  try {
+    const bookings = await Booking.find({ operatorId: req.user.userId }).sort({ bookingDate: -1 });
+    res.status(200).json({ bookings });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching bookings' });
+  }
+});
+
+app.get('/api/operator/bookings/:id', async (req, res) => {
+  try {
+    const booking = await Booking.findOne({ _id: req.params.id, operatorId: req.user.userId });
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    res.status(200).json({ booking });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching booking' });
+  }
+});
+
+app.put('/api/operator/bookings/:id', async (req, res) => {
+  try {
+    const updates = pickUpdates(req.body, ['status', 'paymentStatus']);
+    const booking = await Booking.findOneAndUpdate(
+      { _id: req.params.id, operatorId: req.user.userId },
+      updates,
+      { new: true }
+    );
+    if (!booking) {
+      return res.status(404).json({ message: 'Booking not found' });
+    }
+    
+    // Add timeline entry
+    if (updates.status) {
+      booking.timeline.push({
+        status: updates.status,
+        date: new Date(),
+        note: `Status changed to ${updates.status}`
+      });
+    }
+    
+    await booking.save();
+    res.status(200).json({ message: 'Booking updated successfully', booking });
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating booking' });
+  }
+});
+
+// Operator Customer Routes
+app.get('/api/operator/customers', async (req, res) => {
+  try {
+    const bookings = await Booking.find({ operatorId: req.user.userId });
+    const customerIds = [...new Set(bookings.map(b => b.customerId))];
+    const customers = await User.find({ _id: { $in: customerIds } }).select('-password');
+    
+    const customersWithStats = await Promise.all(customers.map(async (customer) => {
+      const customerBookings = bookings.filter(b => b.customerId.toString() === customer._id.toString());
+      const totalSpent = customerBookings.reduce((sum, b) => sum + (b.paidAmount || 0), 0);
+      return {
+        ...customer.toObject(),
+        totalBookings: customerBookings.length,
+        totalSpent,
+        lastBooking: customerBookings.sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate))[0]?.bookingDate
+      };
+    }));
+    
+    res.status(200).json({ customers: customersWithStats });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching customers' });
+  }
+});
+
+app.get('/api/operator/customers/:id', async (req, res) => {
+  try {
+    const customer = await User.findById(req.params.id).select('-password');
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+    
+    const bookings = await Booking.find({ customerId: req.params.id, operatorId: req.user.userId });
+    const reviews = await Review.find({ customerId: req.params.id, operatorId: req.user.userId });
+    
+    res.status(200).json({
+      customer,
+      bookings,
+      reviews,
+      totalBookings: bookings.length,
+      totalSpent: bookings.reduce((sum, b) => sum + (b.paidAmount || 0), 0)
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching customer details' });
+  }
+});
+
+// Operator Review Routes
+app.get('/api/operator/reviews', async (req, res) => {
+  try {
+    const reviews = await Review.find({ operatorId: req.user.userId }).sort({ date: -1 });
+    res.status(200).json({ reviews });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching reviews' });
+  }
+});
+
+app.put('/api/operator/reviews/:id/respond', async (req, res) => {
+  try {
+    const review = await Review.findOneAndUpdate(
+      { _id: req.params.id, operatorId: req.user.userId },
+      {
+        response: {
+          text: req.body.response,
+          date: new Date()
+        }
+      },
+      { new: true }
+    );
+    if (!review) {
+      return res.status(404).json({ message: 'Review not found' });
+    }
+    res.status(200).json({ message: 'Response added successfully', review });
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding response' });
+  }
+});
+
+// Operator Revenue Routes
+app.get('/api/operator/revenue', async (req, res) => {
+  try {
+    const range = req.query.range || 'month';
+    const since = rangeStart(range);
+    
+    const bookings = await Booking.find({ operatorId: req.user.userId, paymentStatus: 'paid' });
+    const totalRevenue = bookings.reduce((sum, b) => sum + (b.paidAmount || b.amount), 0);
+    
+    const rangeBookings = await Booking.find({ 
+      operatorId: req.user.userId, 
+      paymentStatus: 'paid',
+      bookingDate: { $gte: since } 
+    });
+    const rangeRevenue = rangeBookings.reduce((sum, b) => sum + (b.paidAmount || b.amount), 0);
+    
+    const pendingBookings = await Booking.find({ 
+      operatorId: req.user.userId, 
+      paymentStatus: { $in: ['pending', 'partial'] } 
+    });
+    const pendingRevenue = pendingBookings.reduce((sum, b) => sum + (b.amount - (b.paidAmount || 0)), 0);
+    
+    const refundedBookings = await Booking.find({ 
+      operatorId: req.user.userId, 
+      paymentStatus: 'refunded' 
+    });
+    const refundedRevenue = refundedBookings.reduce((sum, b) => sum + b.amount, 0);
+    
+    // Revenue by package
+    const revenueByPackage = await Booking.aggregate([
+      { $match: { operatorId: mongoose.Types.ObjectId(req.user.userId), paymentStatus: 'paid' } },
+      { $group: { _id: '$package', revenue: { $sum: '$amount' }, count: { $sum: 1 } } },
+      { $sort: { revenue: -1 } }
+    ]);
+    
+    // Monthly revenue
+    const monthlyRevenue = [];
+    for (let i = 11; i >= 0; i--) {
+      const start = new Date();
+      start.setMonth(start.getMonth() - i, 1);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + 1);
+      const monthRevenue = await Booking.find({
+        operatorId: req.user.userId,
+        paymentStatus: 'paid',
+        bookingDate: { $gte: start, $lt: end }
+      });
+      monthlyRevenue.push(monthRevenue.reduce((sum, b) => sum + (b.paidAmount || b.amount), 0));
+    }
+    
+    res.status(200).json({
+      totalRevenue,
+      rangeRevenue,
+      pendingRevenue,
+      refundedRevenue,
+      totalBookings: bookings.length,
+      rangeBookings: rangeBookings.length,
+      averageBookingValue: bookings.length > 0 ? totalRevenue / bookings.length : 0,
+      revenueByPackage,
+      monthlyRevenue
+    });
+  } catch (error) {
+    console.error('Revenue error:', error);
+    res.status(500).json({ message: 'Error fetching revenue data' });
+  }
+});
+
+// Operator Notification Routes
+app.get('/api/operator/notifications', async (req, res) => {
+  try {
+    const notifications = await Notification.find({ userId: req.user.userId })
+      .sort({ createdAt: -1 })
+      .limit(50);
+    const unreadCount = await Notification.countDocuments({ userId: req.user.userId, read: false });
+    res.status(200).json({ notifications, unreadCount });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching notifications' });
+  }
+});
+
+app.put('/api/operator/notifications/:id/read', async (req, res) => {
+  try {
+    const notification = await Notification.findOneAndUpdate(
+      { _id: req.params.id, userId: req.user.userId },
+      { read: true },
+      { new: true }
+    );
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+    res.status(200).json({ message: 'Notification marked as read' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error marking notification as read' });
+  }
+});
+
+app.put('/api/operator/notifications/read-all', async (req, res) => {
+  try {
+    await Notification.updateMany(
+      { userId: req.user.userId, read: false },
+      { read: true }
+    );
+    res.status(200).json({ message: 'All notifications marked as read' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error marking all notifications as read' });
+  }
+});
+
+app.delete('/api/operator/notifications/:id', async (req, res) => {
+  try {
+    const notification = await Notification.findOneAndDelete({ _id: req.params.id, userId: req.user.userId });
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+    res.status(200).json({ message: 'Notification deleted' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting notification' });
   }
 });
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { MapPin, Heart, Star, Bell, Search, Filter, Trash2, Edit, Check, X, Calendar, MessageSquare, ThumbsUp, ThumbsDown, Sparkles, Shield, Award, Clock, CheckCircle, AlertCircle, Star as StarIcon, Heart as HeartIcon, Bell as BellIcon, MapPin as MapIcon } from 'lucide-react'
+import { Heart, Star, Bell, Search, Trash2, Edit, Check, Calendar, Sparkles, Shield, Award, Clock, CheckCircle, AlertCircle, Star as StarIcon, Bell as BellIcon, MapPin as MapIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import CustomerLayout from './CustomerLayout'
 import '../Dashboard.css'
 
 const WishlistReviewsNotifications = () => {
@@ -10,16 +11,16 @@ const WishlistReviewsNotifications = () => {
   const [selectedItem, setSelectedItem] = useState(null)
 
   const wishlist = [
-    { id: 1, name: 'Goa Beach Paradise', destination: 'Goa', image: '🏖️', price: 15999, rating: 4.8, addedDate: '2024-08-15', category: 'beach' },
-    { id: 2, name: 'Kerala Backwaters', destination: 'Kerala', image: '🌴', price: 24999, rating: 4.9, addedDate: '2024-08-18', category: 'nature' },
-    { id: 3, name: 'Himalayan Adventure', destination: 'Himalayas', image: '🏔️', price: 35999, rating: 4.7, addedDate: '2024-08-22', category: 'adventure' },
-    { id: 4, name: 'Andaman Islands', destination: 'Andaman', image: '🏝️', price: 39999, rating: 4.9, addedDate: '2024-08-25', category: 'beach' },
+    { id: 1, name: 'Goa Beach Paradise', destination: 'Goa', image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80', price: 15999, rating: 4.8, addedDate: '2024-08-15', category: 'beach' },
+    { id: 2, name: 'Kerala Backwaters', destination: 'Kerala', image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80', price: 24999, rating: 4.9, addedDate: '2024-08-18', category: 'nature' },
+    { id: 3, name: 'Himalayan Adventure', destination: 'Himalayas', image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80', price: 35999, rating: 4.7, addedDate: '2024-08-22', category: 'adventure' },
+    { id: 4, name: 'Andaman Islands', destination: 'Andaman', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=800&q=80', price: 39999, rating: 4.9, addedDate: '2024-08-25', category: 'beach' },
   ]
 
   const reviews = [
-    { id: 1, package: 'Goa Beach Paradise', rating: 5, comment: 'Amazing experience! The beaches were beautiful and the service was excellent. Highly recommended for beach lovers.', date: '2024-07-20', status: 'approved', image: '🏖️' },
-    { id: 2, package: 'Kerala Backwaters', rating: 4, comment: 'Great trip, houseboat experience was memorable. Food could be better but overall a wonderful experience.', date: '2024-06-15', status: 'approved', image: '🌴' },
-    { id: 3, package: 'Rajasthan Royal Tour', rating: 5, comment: 'Royal treatment at its best! The palace stays were incredible and the cultural shows were amazing.', date: '2024-05-10', status: 'approved', image: '🏰' },
+    { id: 1, package: 'Goa Beach Paradise', rating: 5, comment: 'Amazing experience! The beaches were beautiful and the service was excellent. Highly recommended for beach lovers.', date: '2024-07-20', status: 'approved', image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80' },
+    { id: 2, package: 'Kerala Backwaters', rating: 4, comment: 'Great trip, houseboat experience was memorable. Food could be better but overall a wonderful experience.', date: '2024-06-15', status: 'approved', image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80' },
+    { id: 3, package: 'Rajasthan Royal Tour', rating: 5, comment: 'Royal treatment at its best! The palace stays were incredible and the cultural shows were amazing.', date: '2024-05-10', status: 'approved', image: 'https://images.unsplash.com/photo-1477587458222-8fc769eb531f?auto=format&fit=crop&w=800&q=80' },
   ]
 
   const notifications = [
@@ -74,12 +75,12 @@ const WishlistReviewsNotifications = () => {
 
   const getCategoryBadge = (category) => {
     const badges = {
-      beach: { icon: '🏖️', label: 'Beach', color: '#0ea5e9' },
-      nature: { icon: '🌴', label: 'Nature', color: '#22c55e' },
-      adventure: { icon: '🏔️', label: 'Adventure', color: '#f59e0b' },
-      heritage: { icon: '🏰', label: 'Heritage', color: '#8b5cf6' }
+      beach: { label: 'Beach', color: '#0e7490' },
+      nature: { label: 'Nature', color: '#15803d' },
+      adventure: { label: 'Adventure', color: '#b45309' },
+      heritage: { label: 'Heritage', color: '#6d28d9' }
     }
-    return badges[category] || { icon: '✈️', label: 'Tour', color: '#64748b' }
+    return badges[category] || { label: 'Tour', color: '#475569' }
   }
 
   const getNotificationTypeColor = (type) => {
@@ -94,67 +95,23 @@ const WishlistReviewsNotifications = () => {
   }
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <HeartIcon className="h-8 w-8" />
-          <h2>Customer Portal</h2>
+    <CustomerLayout
+      active="wishlist"
+      title="Wishlist & updates"
+      subtitle="Saved trips, reviews, and notifications"
+      actions={
+        <div className="header-stats">
+          <div className="stat-badge">
+            <Sparkles className="h-4 w-4" />
+            <span>{wishlist.length} saved</span>
+          </div>
+          <div className="stat-badge">
+            <BellIcon className="h-4 w-4" />
+            <span>{notifications.filter(n => !n.read).length} new</span>
+          </div>
         </div>
-        <nav className="sidebar-nav">
-          <Link to="/customer/dashboard" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Destination Exploration</span>
-          </Link>
-          <Link to="/customer/packages" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Tour Packages</span>
-          </Link>
-          <Link to="/customer/itineraries" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Itineraries</span>
-          </Link>
-          <Link to="/customer/hotels" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Hotel Search & Availability</span>
-          </Link>
-          <Link to="/customer/bookings" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Bookings & Payments</span>
-          </Link>
-          <Link to="/customer/invoices" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Invoices & Booking History</span>
-          </Link>
-          <Link to="/customer/wishlist" className="nav-item active">
-            <Heart className="h-5 w-5" />
-            <span>Wishlist, Reviews & Notifications</span>
-          </Link>
-          <Link to="/customer/profile" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Profile Management</span>
-          </Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main">
-        <header className="dashboard-header">
-          <div>
-            <h1>Wishlist, Reviews & Notifications</h1>
-            <p className="header-subtitle">Manage your favorites and stay updated</p>
-          </div>
-          <div className="header-stats">
-            <div className="stat-badge">
-              <Sparkles className="h-4 w-4" />
-              <span>{wishlist.length} Saved</span>
-            </div>
-            <div className="stat-badge">
-              <BellIcon className="h-4 w-4" />
-              <span>{notifications.filter(n => !n.read).length} New</span>
-            </div>
-          </div>
-        </header>
-
-        <div className="dashboard-content">
+      }
+    >
           <div className="tabs enhanced">
             <button 
               className={`tab-btn ${activeTab === 'wishlist' ? 'active' : ''}`}
@@ -196,10 +153,10 @@ const WishlistReviewsNotifications = () => {
                   <div key={item.id} className="wishlist-card enhanced">
                     <div className="wishlist-image enhanced">
                       <div className="wishlist-emoji-wrapper">
-                        <span className="wishlist-emoji">{item.image}</span>
+                        <img className="cp-cover" src={item.image} alt={item.name} />
                       </div>
                       <div className="wishlist-category-badge" style={{ backgroundColor: categoryBadge.color }}>
-                        <span>{categoryBadge.icon} {categoryBadge.label}</span>
+                        <span>{categoryBadge.label}</span>
                       </div>
                     </div>
                     <div className="wishlist-content enhanced">
@@ -255,7 +212,7 @@ const WishlistReviewsNotifications = () => {
                   <div key={review.id} className="review-card enhanced">
                     <div className="review-header enhanced">
                       <div className="review-image-wrapper">
-                        <span className="review-emoji">{review.image}</span>
+                        <img className="cp-cover" src={review.image} alt={review.package} />
                       </div>
                       <div className="review-info">
                         <h3>{review.package}</h3>
@@ -328,9 +285,6 @@ const WishlistReviewsNotifications = () => {
               </div>
             </div>
           )}
-        </div>
-      </main>
-
       {showReviewModal && (
         <div className="modal-overlay">
           <div className="modal">
@@ -381,7 +335,7 @@ const WishlistReviewsNotifications = () => {
           </div>
         </div>
       )}
-    </div>
+    </CustomerLayout>
   )
 }
 

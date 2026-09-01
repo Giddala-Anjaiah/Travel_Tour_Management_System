@@ -7,8 +7,26 @@ import Login from './Login.jsx'
 import Signup from './Signup.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
 import CustomerDashboard from './Dashboard/CustomerDashboard.jsx'
-import TourOperatorDashboard from './Dashboard/TourOperatorDashboard.jsx'
-import HotelPartnerDashboard from './Dashboard/HotelPartnerDashboard.jsx'
+import OperatorDashboard from './Dashboard/Operator/OperatorDashboard.jsx'
+import OperatorProfilePage from './Dashboard/Operator/OperatorProfilePage.jsx'
+import OperatorPackagesPage from './Dashboard/Operator/OperatorPackagesPage.jsx'
+import OperatorItinerariesPage from './Dashboard/Operator/OperatorItinerariesPage.jsx'
+import OperatorPricingPage from './Dashboard/Operator/OperatorPricingPage.jsx'
+import OperatorBookingsPage from './Dashboard/Operator/OperatorBookingsPage.jsx'
+import OperatorCustomersPage from './Dashboard/Operator/OperatorCustomersPage.jsx'
+import OperatorReviewsPage from './Dashboard/Operator/OperatorReviewsPage.jsx'
+import OperatorRevenueNotificationsPage from './Dashboard/Operator/OperatorRevenueNotificationsPage.jsx'
+import OperatorSettingsPage from './Dashboard/Operator/OperatorSettingsPage.jsx'
+import HotelDashboard from './Dashboard/Hotel/HotelDashboard.jsx'
+import HotelProfilePage from './Dashboard/Hotel/HotelProfilePage.jsx'
+import HotelRoomsPage from './Dashboard/Hotel/HotelRoomsPage.jsx'
+import HotelPricingPage from './Dashboard/Hotel/HotelPricingPage.jsx'
+import HotelAvailabilityPage from './Dashboard/Hotel/HotelAvailabilityPage.jsx'
+import HotelBookingsPage from './Dashboard/Hotel/HotelBookingsPage.jsx'
+import HotelCheckInOutPage from './Dashboard/Hotel/HotelCheckInOutPage.jsx'
+import HotelGuestsPage from './Dashboard/Hotel/HotelGuestsPage.jsx'
+import HotelReviewsRevenuePage from './Dashboard/Hotel/HotelReviewsRevenuePage.jsx'
+import HotelSettingsPage from './Dashboard/Hotel/HotelSettingsPage.jsx'
 import DashboardAnalytics from './Dashboard/Admin/DashboardAnalytics.jsx'
 import UserManagement from './Dashboard/Admin/UserManagement.jsx'
 import DestinationManagement from './Dashboard/Admin/DestinationManagement.jsx'
@@ -179,7 +197,87 @@ createRoot(document.getElementById('root')).render(
           path="/tour-operator/dashboard" 
           element={
             <ProtectedRoute allowedRoles={['tour_operator']}>
-              <TourOperatorDashboard />
+              <OperatorDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/profile" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorProfilePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/packages" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorPackagesPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/itineraries" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorItinerariesPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/pricing" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorPricingPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/bookings" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorBookingsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/customers" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorCustomersPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/reviews" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorReviewsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/revenue" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorRevenueNotificationsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/notifications" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorRevenueNotificationsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/tour-operator/settings" 
+          element={
+            <ProtectedRoute allowedRoles={['tour_operator']}>
+              <OperatorSettingsPage />
             </ProtectedRoute>
           } 
         />
@@ -189,7 +287,79 @@ createRoot(document.getElementById('root')).render(
           path="/hotel-partner/dashboard" 
           element={
             <ProtectedRoute allowedRoles={['hotel_partner']}>
-              <HotelPartnerDashboard />
+              <HotelDashboard />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/hotel-partner/profile" 
+          element={
+            <ProtectedRoute allowedRoles={['hotel_partner']}>
+              <HotelProfilePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/hotel-partner/rooms" 
+          element={
+            <ProtectedRoute allowedRoles={['hotel_partner']}>
+              <HotelRoomsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/hotel-partner/pricing" 
+          element={
+            <ProtectedRoute allowedRoles={['hotel_partner']}>
+              <HotelPricingPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/hotel-partner/availability" 
+          element={
+            <ProtectedRoute allowedRoles={['hotel_partner']}>
+              <HotelAvailabilityPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/hotel-partner/bookings" 
+          element={
+            <ProtectedRoute allowedRoles={['hotel_partner']}>
+              <HotelBookingsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/hotel-partner/checkin" 
+          element={
+            <ProtectedRoute allowedRoles={['hotel_partner']}>
+              <HotelCheckInOutPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/hotel-partner/guests" 
+          element={
+            <ProtectedRoute allowedRoles={['hotel_partner']}>
+              <HotelGuestsPage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/hotel-partner/reviews" 
+          element={
+            <ProtectedRoute allowedRoles={['hotel_partner']}>
+              <HotelReviewsRevenuePage />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/hotel-partner/settings" 
+          element={
+            <ProtectedRoute allowedRoles={['hotel_partner']}>
+              <HotelSettingsPage />
             </ProtectedRoute>
           } 
         />

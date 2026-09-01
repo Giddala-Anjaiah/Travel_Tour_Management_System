@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { MapPin, Calendar, Clock, Building, Star, Search, Download, Eye, Edit, Trash2, ArrowRight, Route, Map, Compass, Sparkles, CheckCircle, Info } from 'lucide-react'
+import { Calendar, Clock, Building, Star, Search, Eye, ArrowRight, Compass, Sparkles, CheckCircle, Info } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import CustomerLayout from './CustomerLayout'
 import '../Dashboard.css'
 
 const Itineraries = () => {
@@ -18,7 +19,7 @@ const Itineraries = () => {
       status: 'active',
       difficulty: 'Easy',
       category: 'beach',
-      image: '🏖️',
+      image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80',
       highlights: ['Beach Hopping', 'Water Sports', 'Sunset Points', 'Local Cuisine'],
       schedule: [
         { day: 1, title: 'Arrival & Beach Exploration', activities: ['Arrival at Goa Airport', 'Check-in at Resort', 'Beach Walk at Calangute', 'Welcome Dinner'], meals: ['Lunch', 'Dinner'] },
@@ -35,7 +36,7 @@ const Itineraries = () => {
       status: 'active',
       difficulty: 'Easy',
       category: 'nature',
-      image: '🌴',
+      image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80',
       highlights: ['Houseboat Stay', 'Tea Gardens', 'Ayurveda', 'Cultural Shows'],
       schedule: [
         { day: 1, title: 'Cochi Arrival', activities: ['Arrival at Kochi', 'Fort Kochi Tour', 'Kathakali Show', 'Sunset at Marine Drive'], meals: ['Lunch', 'Dinner'] },
@@ -54,7 +55,7 @@ const Itineraries = () => {
       status: 'active',
       difficulty: 'Moderate',
       category: 'adventure',
-      image: '🏔️',
+      image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=80',
       highlights: ['Trekking', 'Camping', 'River Rafting', 'Mountain Views'],
       schedule: [
         { day: 1, title: 'Manali Arrival', activities: ['Arrival at Manali', 'Check-in at Hotel', 'Mall Road Walk', 'Local Cuisine'], meals: ['Lunch', 'Dinner'] },
@@ -89,76 +90,28 @@ const Itineraries = () => {
 
   const getCategoryBadge = (category) => {
     const badges = {
-      beach: { icon: '🏖️', label: 'Beach', color: '#0ea5e9' },
-      nature: { icon: '🌴', label: 'Nature', color: '#22c55e' },
-      adventure: { icon: '🏔️', label: 'Adventure', color: '#f59e0b' },
-      heritage: { icon: '🏰', label: 'Heritage', color: '#8b5cf6' }
+      beach: { label: 'Beach', color: '#0e7490' },
+      nature: { label: 'Nature', color: '#15803d' },
+      adventure: { label: 'Adventure', color: '#b45309' },
+      heritage: { label: 'Heritage', color: '#6d28d9' }
     }
-    return badges[category] || { icon: '✈️', label: 'Tour', color: '#64748b' }
+    return badges[category] || { label: 'Tour', color: '#475569' }
   }
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <Route className="h-8 w-8" />
-          <h2>Customer Portal</h2>
+    <CustomerLayout
+      active="itineraries"
+      title="Itineraries"
+      subtitle="Day-by-day plans from arrival to departure"
+      actions={
+        <div className="header-stats">
+          <div className="stat-badge">
+            <Sparkles className="h-4 w-4" />
+            <span>{itineraries.length} itineraries</span>
+          </div>
         </div>
-        <nav className="sidebar-nav">
-          <Link to="/customer/dashboard" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Destination Exploration</span>
-          </Link>
-          <Link to="/customer/packages" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Tour Packages</span>
-          </Link>
-          <Link to="/customer/itineraries" className="nav-item active">
-            <Calendar className="h-5 w-5" />
-            <span>Itineraries</span>
-          </Link>
-          <Link to="/customer/hotels" className="nav-item">
-            <Star className="h-5 w-5" />
-            <span>Hotel Search & Availability</span>
-          </Link>
-          <Link to="/customer/bookings" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Bookings & Payments</span>
-          </Link>
-          <Link to="/customer/invoices" className="nav-item">
-            <Star className="h-5 w-5" />
-            <span>Invoices & Booking History</span>
-          </Link>
-          <Link to="/customer/wishlist" className="nav-item">
-            <Star className="h-5 w-5" />
-            <span>Wishlist, Reviews & Notifications</span>
-          </Link>
-          <Link to="/customer/profile" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Profile Management</span>
-          </Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main">
-        <header className="dashboard-header">
-          <div>
-            <h1>Itineraries</h1>
-            <p className="header-subtitle">Detailed day-by-day travel plans</p>
-          </div>
-          <div className="header-stats">
-            <div className="stat-badge">
-              <Sparkles className="h-4 w-4" />
-              <span>{itineraries.length} Itineraries</span>
-            </div>
-            <div className="stat-badge">
-              <Map className="h-4 w-4" />
-              <span>Expertly Curated</span>
-            </div>
-          </div>
-        </header>
-
-        <div className="dashboard-content">
+      }
+    >
           <div className="filters-section enhanced">
             <div className="search-bar enhanced">
               <Search className="search-icon" />
@@ -178,7 +131,7 @@ const Itineraries = () => {
                 <div key={itinerary.id} className="itinerary-card enhanced">
                   <div className="itinerary-header enhanced">
                     <div className="itinerary-image-wrapper">
-                      <span className="itinerary-emoji">{itinerary.image}</span>
+                      <img className="cp-cover" src={itinerary.image} alt={itinerary.name} />
                     </div>
                     <div className="itinerary-info">
                       <h3>{itinerary.name}</h3>
@@ -189,7 +142,7 @@ const Itineraries = () => {
                     </div>
                     <div className="itinerary-badges">
                       <div className="itinerary-category-badge" style={{ backgroundColor: categoryBadge.color }}>
-                        <span>{categoryBadge.icon} {categoryBadge.label}</span>
+                        <span>{categoryBadge.label}</span>
                       </div>
                       <div className="itinerary-difficulty-badge" style={{ backgroundColor: getDifficultyColor(itinerary.difficulty) }}>
                         <Compass className="h-3 w-3" />
@@ -258,9 +211,6 @@ const Itineraries = () => {
               )
             })}
           </div>
-        </div>
-      </main>
-
       {showDetails && selectedItinerary && (
         <div className="modal-overlay">
           <div className="modal itinerary-modal">
@@ -338,7 +288,7 @@ const Itineraries = () => {
           </div>
         </div>
       )}
-    </div>
+    </CustomerLayout>
   )
 }
 
