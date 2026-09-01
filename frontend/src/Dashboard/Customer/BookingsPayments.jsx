@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
-import { MapPin, Calendar, CreditCard, Search, Filter, DollarSign, Clock, CheckCircle, XCircle, AlertCircle, Download, Eye, Sparkles, Shield, Ticket, Calendar as CalendarIcon, ArrowRight, CreditCard as CardIcon, Wallet, Zap, Users } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { MapPin, Calendar, CreditCard, Search, Clock, CheckCircle, XCircle, AlertCircle, Download, Eye, Sparkles, Shield, Ticket, Calendar as CalendarIcon, CreditCard as CardIcon, Wallet, Zap, Users } from 'lucide-react'
+import CustomerLayout from './CustomerLayout'
 import '../Dashboard.css'
 
 const BookingsPayments = () => {
@@ -23,7 +23,7 @@ const BookingsPayments = () => {
       paymentStatus: 'partial',
       bookingDate: '2024-08-20',
       bookingId: 'BK-2024-001',
-      image: '🏖️'
+      image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=800&q=80'
     },
     { 
       id: 2, 
@@ -38,7 +38,7 @@ const BookingsPayments = () => {
       paymentStatus: 'paid',
       bookingDate: '2024-08-25',
       bookingId: 'BK-2024-002',
-      image: '🌴'
+      image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80'
     },
     { 
       id: 3, 
@@ -53,7 +53,7 @@ const BookingsPayments = () => {
       paymentStatus: 'unpaid',
       bookingDate: '2024-08-28',
       bookingId: 'BK-2024-003',
-      image: '🏔️'
+      image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=800&q=80'
     },
     { 
       id: 4, 
@@ -68,7 +68,7 @@ const BookingsPayments = () => {
       paymentStatus: 'partial',
       bookingDate: '2024-08-30',
       bookingId: 'BK-2024-004',
-      image: '🏰'
+      image: 'https://images.unsplash.com/photo-1477587458222-8fc769eb531f?auto=format&fit=crop&w=800&q=80'
     },
   ]
 
@@ -123,67 +123,23 @@ const BookingsPayments = () => {
   }
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <CardIcon className="h-8 w-8" />
-          <h2>Customer Portal</h2>
+    <CustomerLayout
+      active="bookings"
+      title="Bookings & payments"
+      subtitle="Manage reservations and remaining balances"
+      actions={
+        <div className="header-stats">
+          <div className="stat-badge">
+            <Sparkles className="h-4 w-4" />
+            <span>{bookings.length} bookings</span>
+          </div>
+          <div className="stat-badge">
+            <Shield className="h-4 w-4" />
+            <span>Secure payments</span>
+          </div>
         </div>
-        <nav className="sidebar-nav">
-          <Link to="/customer/dashboard" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Destination Exploration</span>
-          </Link>
-          <Link to="/customer/packages" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Tour Packages</span>
-          </Link>
-          <Link to="/customer/itineraries" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Itineraries</span>
-          </Link>
-          <Link to="/customer/hotels" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Hotel Search & Availability</span>
-          </Link>
-          <Link to="/customer/bookings" className="nav-item active">
-            <Calendar className="h-5 w-5" />
-            <span>Bookings & Payments</span>
-          </Link>
-          <Link to="/customer/invoices" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Invoices & Booking History</span>
-          </Link>
-          <Link to="/customer/wishlist" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Wishlist, Reviews & Notifications</span>
-          </Link>
-          <Link to="/customer/profile" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Profile Management</span>
-          </Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main">
-        <header className="dashboard-header">
-          <div>
-            <h1>Bookings & Payments</h1>
-            <p className="header-subtitle">Manage your reservations and payments</p>
-          </div>
-          <div className="header-stats">
-            <div className="stat-badge">
-              <Sparkles className="h-4 w-4" />
-              <span>{bookings.length} Bookings</span>
-            </div>
-            <div className="stat-badge">
-              <Shield className="h-4 w-4" />
-              <span>Secure Payments</span>
-            </div>
-          </div>
-        </header>
-
-        <div className="dashboard-content">
+      }
+    >
           <div className="stats-grid enhanced">
             <div className="stat-card enhanced">
               <Ticket className="stat-icon" />
@@ -247,7 +203,7 @@ const BookingsPayments = () => {
               <div key={booking.id} className="booking-card enhanced">
                 <div className="booking-header enhanced">
                   <div className="booking-image-wrapper">
-                    <span className="booking-emoji">{booking.image}</span>
+                    <img className="cp-cover" src={booking.image} alt={booking.package} />
                   </div>
                   <div className="booking-info">
                     <h3>{booking.package}</h3>
@@ -345,9 +301,6 @@ const BookingsPayments = () => {
               </div>
             ))}
           </div>
-        </div>
-      </main>
-
       {showPaymentModal && selectedBooking && (
         <div className="modal-overlay">
           <div className="modal payment-modal">
@@ -424,7 +377,7 @@ const BookingsPayments = () => {
           </div>
         </div>
       )}
-    </div>
+    </CustomerLayout>
   )
 }
 

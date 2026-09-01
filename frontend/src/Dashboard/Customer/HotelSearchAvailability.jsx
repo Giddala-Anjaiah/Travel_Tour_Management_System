@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { MapPin, Building, Star, Search, Calendar, Users, DollarSign, Filter, Heart, Bed, Wifi, Car, Coffee, Sparkles, Shield, Award, MapPin as LocationIcon, CheckCircle, Clock, Utensils, Dumbbell, Waves } from 'lucide-react'
+import { MapPin, Star, Search, Heart, Bed, Wifi, Coffee, Sparkles, Shield, MapPin as LocationIcon, CheckCircle, Utensils, Dumbbell, Waves } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import CustomerLayout from './CustomerLayout'
 import '../Dashboard.css'
 
 const HotelSearchAvailability = () => {
@@ -17,7 +18,7 @@ const HotelSearchAvailability = () => {
       id: 1, 
       name: 'Taj Resort Goa', 
       location: 'Goa, India', 
-      image: '🏨',
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
       rating: 4.8, 
       price: 8999,
       availableRooms: 15,
@@ -31,7 +32,7 @@ const HotelSearchAvailability = () => {
       id: 2, 
       name: 'Goa Marriott Resort', 
       location: 'Goa, India', 
-      image: '🏖️',
+      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80',
       rating: 4.7, 
       price: 7999,
       availableRooms: 18,
@@ -45,7 +46,7 @@ const HotelSearchAvailability = () => {
       id: 3, 
       name: 'Kumarakom Lake Resort', 
       location: 'Kerala, India', 
-      image: '🌴',
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
       rating: 4.9, 
       price: 12999,
       availableRooms: 10,
@@ -59,7 +60,7 @@ const HotelSearchAvailability = () => {
       id: 4, 
       name: 'Himalayan Retreat', 
       location: 'Manali, India', 
-      image: '🏔️',
+      image: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1200&q=80',
       rating: 4.6, 
       price: 9999,
       availableRooms: 10,
@@ -73,7 +74,7 @@ const HotelSearchAvailability = () => {
       id: 5, 
       name: 'Rajasthan Palace Hotel', 
       location: 'Jaipur, India', 
-      image: '🏰',
+      image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=80',
       rating: 4.7, 
       price: 11999,
       availableRooms: 8,
@@ -87,7 +88,7 @@ const HotelSearchAvailability = () => {
       id: 6, 
       name: 'Andaman Beach Resort', 
       location: 'Port Blair, India', 
-      image: '🏝️',
+      image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80',
       rating: 4.8, 
       price: 10999,
       availableRooms: 12,
@@ -154,67 +155,23 @@ const HotelSearchAvailability = () => {
   }
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <Building className="h-8 w-8" />
-          <h2>Customer Portal</h2>
+    <CustomerLayout
+      active="hotels"
+      title="Hotels"
+      subtitle="Search availability and book your stay"
+      actions={
+        <div className="header-stats">
+          <div className="stat-badge">
+            <Sparkles className="h-4 w-4" />
+            <span>{hotels.length} properties</span>
+          </div>
+          <div className="stat-badge">
+            <Shield className="h-4 w-4" />
+            <span>Verified stays</span>
+          </div>
         </div>
-        <nav className="sidebar-nav">
-          <Link to="/customer/dashboard" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Destination Exploration</span>
-          </Link>
-          <Link to="/customer/packages" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Tour Packages</span>
-          </Link>
-          <Link to="/customer/itineraries" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Itineraries</span>
-          </Link>
-          <Link to="/customer/hotels" className="nav-item active">
-            <Star className="h-5 w-5" />
-            <span>Hotel Search & Availability</span>
-          </Link>
-          <Link to="/customer/bookings" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Bookings & Payments</span>
-          </Link>
-          <Link to="/customer/invoices" className="nav-item">
-            <Star className="h-5 w-5" />
-            <span>Invoices & Booking History</span>
-          </Link>
-          <Link to="/customer/wishlist" className="nav-item">
-            <Star className="h-5 w-5" />
-            <span>Wishlist, Reviews & Notifications</span>
-          </Link>
-          <Link to="/customer/profile" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Profile Management</span>
-          </Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main">
-        <header className="dashboard-header">
-          <div>
-            <h1>Hotel Search & Availability</h1>
-            <p className="header-subtitle">Find your perfect stay</p>
-          </div>
-          <div className="header-stats">
-            <div className="stat-badge">
-              <Sparkles className="h-4 w-4" />
-              <span>{hotels.length} Hotels</span>
-            </div>
-            <div className="stat-badge">
-              <Shield className="h-4 w-4" />
-              <span>Verified Properties</span>
-            </div>
-          </div>
-        </header>
-
-        <div className="dashboard-content">
+      }
+    >
           <div className="booking-filters enhanced">
             <div className="filter-group">
               <label>Check-in</label>
@@ -289,7 +246,7 @@ const HotelSearchAvailability = () => {
                 <div key={hotel.id} className="hotel-card enhanced">
                   <div className="hotel-image enhanced">
                     <div className="hotel-emoji-wrapper">
-                      <span className="hotel-emoji">{hotel.image}</span>
+                      <img className="cp-cover" src={hotel.image} alt={hotel.name} />
                     </div>
                     <button 
                       onClick={() => toggleFavorite(hotel.id)}
@@ -363,7 +320,6 @@ const HotelSearchAvailability = () => {
 
                     <div className="hotel-footer enhanced">
                       <div className="hotel-price enhanced">
-                        <DollarSign className="h-4 w-4" />
                         <div>
                           <small>Per night</small>
                           <strong>₹{hotel.price.toLocaleString()}</strong>
@@ -384,9 +340,7 @@ const HotelSearchAvailability = () => {
               )
             })}
           </div>
-        </div>
-      </main>
-    </div>
+    </CustomerLayout>
   )
 }
 

@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { MapPin, Calendar, Users, Star, Heart, DollarSign, Search, Filter, ArrowRight, Clock, Ticket, Sparkles, Check, Zap, Shield, Award } from 'lucide-react'
+import { MapPin, Users, Star, Heart, Search, ArrowRight, Clock, Sparkles, Check, Zap, Shield, Award } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import CustomerLayout from './CustomerLayout'
 import '../Dashboard.css'
 
 const TourPackages = () => {
@@ -14,7 +15,7 @@ const TourPackages = () => {
       id: 1, 
       name: 'Goa Beach Paradise', 
       destination: 'Goa', 
-      image: '🏖️',
+      image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&w=1200&q=80',
       duration: '3 Days 2 Nights', 
       durationDays: 3,
       price: 15999, 
@@ -29,7 +30,7 @@ const TourPackages = () => {
       id: 2, 
       name: 'Kerala Backwaters', 
       destination: 'Kerala', 
-      image: '🌴',
+      image: 'https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=1200&q=80',
       duration: '5 Days 4 Nights', 
       durationDays: 5,
       price: 24999, 
@@ -44,7 +45,7 @@ const TourPackages = () => {
       id: 3, 
       name: 'Himalayan Adventure', 
       destination: 'Himalayas', 
-      image: '🏔️',
+      image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1200&q=80',
       duration: '7 Days 6 Nights', 
       durationDays: 7,
       price: 35999, 
@@ -59,7 +60,7 @@ const TourPackages = () => {
       id: 4, 
       name: 'Rajasthan Royal Tour', 
       destination: 'Rajasthan', 
-      image: '🏰',
+      image: 'https://images.unsplash.com/photo-1477587458222-8fc769eb531f?auto=format&fit=crop&w=1200&q=80',
       duration: '6 Days 5 Nights', 
       durationDays: 6,
       price: 29999, 
@@ -74,7 +75,7 @@ const TourPackages = () => {
       id: 5, 
       name: 'Andaman Islands', 
       destination: 'Andaman', 
-      image: '🏝️',
+      image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1200&q=80',
       duration: '6 Days 5 Nights', 
       durationDays: 6,
       price: 39999, 
@@ -89,7 +90,7 @@ const TourPackages = () => {
       id: 6, 
       name: 'Golden Triangle', 
       destination: 'Delhi-Agra-Jaipur', 
-      image: '🕌',
+      image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80',
       duration: '5 Days 4 Nights', 
       durationDays: 5,
       price: 21999, 
@@ -133,76 +134,32 @@ const TourPackages = () => {
 
   const getCategoryBadge = (category) => {
     const badges = {
-      beach: { icon: '🏖️', label: 'Beach', color: '#0ea5e9' },
-      nature: { icon: '🌴', label: 'Nature', color: '#22c55e' },
-      adventure: { icon: '🏔️', label: 'Adventure', color: '#f59e0b' },
-      heritage: { icon: '🏰', label: 'Heritage', color: '#8b5cf6' }
+      beach: { label: 'Beach', color: '#0e7490' },
+      nature: { label: 'Nature', color: '#15803d' },
+      adventure: { label: 'Adventure', color: '#b45309' },
+      heritage: { label: 'Heritage', color: '#6d28d9' }
     }
-    return badges[category] || { icon: '✈️', label: 'Tour', color: '#64748b' }
+    return badges[category] || { label: 'Tour', color: '#475569' }
   }
 
   return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <div className="sidebar-header">
-          <Ticket className="h-8 w-8" />
-          <h2>Customer Portal</h2>
+    <CustomerLayout
+      active="packages"
+      title="Tour packages"
+      subtitle="Curated experiences for every traveler"
+      actions={
+        <div className="header-stats">
+          <div className="stat-badge">
+            <Sparkles className="h-4 w-4" />
+            <span>{packages.length} packages</span>
+          </div>
+          <div className="stat-badge">
+            <Award className="h-4 w-4" />
+            <span>Best price guarantee</span>
+          </div>
         </div>
-        <nav className="sidebar-nav">
-          <Link to="/customer/dashboard" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Destination Exploration</span>
-          </Link>
-          <Link to="/customer/packages" className="nav-item active">
-            <Calendar className="h-5 w-5" />
-            <span>Tour Packages</span>
-          </Link>
-          <Link to="/customer/itineraries" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Itineraries</span>
-          </Link>
-          <Link to="/customer/hotels" className="nav-item">
-            <Star className="h-5 w-5" />
-            <span>Hotel Search & Availability</span>
-          </Link>
-          <Link to="/customer/bookings" className="nav-item">
-            <Calendar className="h-5 w-5" />
-            <span>Bookings & Payments</span>
-          </Link>
-          <Link to="/customer/invoices" className="nav-item">
-            <Star className="h-5 w-5" />
-            <span>Invoices & Booking History</span>
-          </Link>
-          <Link to="/customer/wishlist" className="nav-item">
-            <Star className="h-5 w-5" />
-            <span>Wishlist, Reviews & Notifications</span>
-          </Link>
-          <Link to="/customer/profile" className="nav-item">
-            <MapPin className="h-5 w-5" />
-            <span>Profile Management</span>
-          </Link>
-        </nav>
-      </aside>
-
-      <main className="dashboard-main">
-        <header className="dashboard-header">
-          <div>
-            <h1>Tour Packages</h1>
-            <p className="header-subtitle">Curated experiences for every traveler</p>
-          </div>
-          <div className="header-stats">
-            <div className="stat-badge">
-              <Sparkles className="h-4 w-4" />
-              <span>{packages.length} Packages</span>
-            </div>
-            <div className="stat-badge">
-              <Award className="h-4 w-4" />
-              <span>Best Price Guarantee</span>
-            </div>
-          </div>
-        </header>
-
-        <div className="dashboard-content">
+      }
+    >
           <div className="filters-section enhanced">
             <div className="search-bar enhanced">
               <Search className="search-icon" />
@@ -250,7 +207,7 @@ const TourPackages = () => {
                 <div key={pkg.id} className="package-card enhanced">
                   <div className="package-image enhanced">
                     <div className="package-emoji-wrapper">
-                      <span className="package-emoji">{pkg.image}</span>
+                      <img className="cp-cover" src={pkg.image} alt={pkg.name} />
                     </div>
                     <button 
                       onClick={() => toggleFavorite(pkg.id)}
@@ -259,7 +216,7 @@ const TourPackages = () => {
                       <Heart className="h-5 w-5" />
                     </button>
                     <div className="package-category-badge" style={{ backgroundColor: categoryBadge.color }}>
-                      <span>{categoryBadge.icon} {categoryBadge.label}</span>
+                      <span>{categoryBadge.label}</span>
                     </div>
                     <div className="package-difficulty-badge" style={{ backgroundColor: getDifficultyColor(pkg.difficulty) }}>
                       <Zap className="h-3 w-3" />
@@ -323,7 +280,6 @@ const TourPackages = () => {
 
                     <div className="package-footer enhanced">
                       <div className="package-price enhanced">
-                        <DollarSign className="h-4 w-4" />
                         <div>
                           <small>Per person</small>
                           <strong>₹{pkg.price.toLocaleString()}</strong>
@@ -344,9 +300,7 @@ const TourPackages = () => {
               )
             })}
           </div>
-        </div>
-      </main>
-    </div>
+    </CustomerLayout>
   )
 }
 
