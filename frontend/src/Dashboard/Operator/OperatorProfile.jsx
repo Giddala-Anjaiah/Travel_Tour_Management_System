@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { User, Mail, Phone, MapPin, Globe, Building, Save, Camera, Sparkles, Award, CheckCircle, Lock, Edit, X, Shield, Clock, XCircle } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Globe, Building, Save, Camera, Sparkles, Award, CheckCircle, Lock, Pencil as Edit, X, Shield, Clock, XCircle } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../Dashboard.css'
 

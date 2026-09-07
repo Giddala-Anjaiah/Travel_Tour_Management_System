@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { MapPin, Plus, Edit, Trash2, Search, Download, Star, DollarSign, Calendar, Users } from 'lucide-react'
+import { MapPin, Plus, Pencil as Edit, Trash2, Search, Download, Star, DollarSign, Calendar, Users } from 'lucide-react'
 import { api, downloadCsv, formValues, formatCurrency } from '../../api'
 import AdminLayout from './AdminLayout'
 
@@ -26,9 +26,13 @@ const DestinationManagement = () => {
         rating: pkg.rating || 0,
         bookings: pkg.bookings || 0,
         status: pkg.status || 'active',
+        publishedStatus: pkg.publishedStatus || 'published',
         description: pkg.description || '',
         inclusions: Array.isArray(pkg.inclusions) ? pkg.inclusions.join('\n') : (pkg.inclusions || ''),
-        image: pkg.image || '🌴'
+        highlights: Array.isArray(pkg.highlights) ? pkg.highlights.join('\n') : (pkg.highlights || ''),
+        image: pkg.image || '',
+        category: pkg.category || '',
+        shortDescription: pkg.shortDescription || ''
       })))
     } catch (err) {
       setError(err.message)
@@ -52,6 +56,11 @@ const DestinationManagement = () => {
     price: Number(values.price),
     description: values.description,
     inclusions: (values.inclusions || '').split('\n').map((line) => line.trim()).filter(Boolean),
+    highlights: (values.highlights || '').split('\n').map((line) => line.trim()).filter(Boolean),
+    image: (values.image || '').trim(),
+    category: values.category || '',
+    shortDescription: values.shortDescription || '',
+    publishedStatus: values.publishedStatus || 'published',
     status: values.status || 'active'
   })
 
@@ -144,7 +153,27 @@ const DestinationManagement = () => {
           <div className="packages-grid">
             {filteredPackages.length === 0 ? <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '2rem' }}>No packages found</div> : filteredPackages.map((pkg) => (
               <div key={pkg.id} className="package-card">
-                <div className="package-image">{pkg.image}</div>
+                <div className="package-card-image-wrap">
+                  {pkg.image ? (
+                    <img
+                      src={pkg.image}
+                      alt={pkg.name}
+                      className="package-card-image"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none'
+                        const fallback = e.currentTarget.nextElementSibling
+                        if (fallback) fallback.style.display = 'flex'
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="package-card-image-fallback"
+                    style={{ display: pkg.image ? 'none' : 'flex' }}
+                  >
+                    🌴
+                  </div>
+                </div>
                 <div className="package-content">
                   <div className="package-header">
                     <h4>{pkg.name}</h4>
@@ -180,14 +209,37 @@ const DestinationManagement = () => {
             </div>
             <div className="modal-body">
               <form className="package-form" onSubmit={showAddModal ? handleAddPackage : handleUpdatePackage}>
-                <div className="form-group"><label>Package Name</label><input name="name" defaultValue={selectedPackage?.name} required /></div>
+                <div className="form-row">
+                  <div className="form-group"><label>Package Name</label><input name="name" defaultValue={selectedPackage?.name} required /></div>
+                  <div className="form-group"><label>Category</label><input name="category" defaultValue={selectedPackage?.category} placeholder="e.g., Beach, Adventure, Heritage" /></div>
+                </div>
                 <div className="form-group"><label>Destination</label><input name="destination" defaultValue={selectedPackage?.destination} required /></div>
                 <div className="form-row">
                   <div className="form-group"><label>Duration</label><input name="duration" defaultValue={selectedPackage?.duration} placeholder="e.g., 5 Days 4 Nights" required /></div>
                   <div className="form-group"><label>Price (₹)</label><input name="price" type="number" defaultValue={selectedPackage?.price} required /></div>
                 </div>
+                <div className="form-group"><label>Cover Image URL</label><input name="image" type="url" defaultValue={selectedPackage?.image} placeholder="https://example.com/photo.jpg" /></div>
+                <div className="form-group"><label>Short Description</label><input name="shortDescription" defaultValue={selectedPackage?.shortDescription} placeholder="One-line summary" /></div>
                 <div className="form-group"><label>Description</label><textarea name="description" rows="4" defaultValue={selectedPackage?.description} required /></div>
-                <div className="form-group"><label>Inclusions</label><textarea name="inclusions" rows="3" defaultValue={selectedPackage?.inclusions} required /></div>
+                <div className="form-group"><label>Highlights (one per line)</label><textarea name="highlights" rows="3" defaultValue={selectedPackage?.highlights} /></div>
+                <div className="form-group"><label>Inclusions (one per line)</label><textarea name="inclusions" rows="3" defaultValue={selectedPackage?.inclusions} required /></div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Status</label>
+                    <select name="status" defaultValue={selectedPackage?.status || 'active'}>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label>Publish</label>
+                    <select name="publishedStatus" defaultValue={selectedPackage?.publishedStatus || 'published'}>
+                      <option value="published">Published</option>
+                      <option value="draft">Draft</option>
+                      <option value="unpublished">Unpublished</option>
+                    </select>
+                  </div>
+                </div>
                 <div className="form-actions">
                   <button type="button" onClick={() => { setShowAddModal(false); setShowEditModal(false) }} className="btn-secondary">Cancel</button>
                   <button type="submit" className="btn-primary">{showAddModal ? 'Add Package' : 'Update Package'}</button>

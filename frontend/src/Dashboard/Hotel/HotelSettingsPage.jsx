@@ -1,6 +1,7 @@
-import React, { useState } from 'react'
-import { Save, Settings as SettingsIcon } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Save } from 'lucide-react'
 import HotelLayout from './HotelLayout'
+import { api } from '../../api'
 import '../Dashboard.css'
 
 const HotelSettingsPage = () => {
@@ -19,6 +20,32 @@ const HotelSettingsPage = () => {
 
   const [isSaving, setIsSaving] = useState(false)
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await api('/hotel/settings')
+        if (data.settings) {
+          const s = data.settings
+          setSettings({
+            emailNotifications: s.emailNotifications,
+            smsNotifications: s.smsNotifications,
+            pushNotifications: s.pushNotifications,
+            bookingAlerts: s.bookingAlerts,
+            paymentUpdates: s.paymentUpdates,
+            reviewAlerts: s.reviewAlerts,
+            guestNotifications: s.guestNotifications,
+            currency: s.currency,
+            language: s.language,
+            timezone: s.timezone
+          })
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    load()
+  }, [])
+
   const handleSettingChange = (key, value) => {
     setSettings(prev => ({
       ...prev,
@@ -29,23 +56,10 @@ const HotelSettingsPage = () => {
   const handleSaveSettings = async () => {
     setIsSaving(true)
     try {
-      const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/hotel/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(settings)
-      })
-      if (response.ok) {
-        alert('Settings updated successfully!')
-      } else {
-        alert('Error updating settings')
-      }
+      await api('/hotel/settings', { method: 'PUT', body: JSON.stringify(settings) })
+      alert('Settings updated successfully!')
     } catch (error) {
-      console.error('Error:', error)
-      alert('Error updating settings')
+      alert(error.message || 'Error updating settings')
     } finally {
       setIsSaving(false)
     }

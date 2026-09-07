@@ -1,139 +1,85 @@
-import React, { useState } from 'react'
-import { MapPin, Star, Search, Heart, Bed, Wifi, Coffee, Sparkles, Shield, MapPin as LocationIcon, CheckCircle, Utensils, Dumbbell, Waves } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { MapPin, Star, Search, Heart, Bed, Wifi, Coffee, Sparkles, Shield, CheckCircle, Utensils, Dumbbell, Waves, AlertCircle, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import CustomerLayout from './CustomerLayout'
+import { api, formatCurrency } from '../../api'
 import '../Dashboard.css'
 
 const HotelSearchAvailability = () => {
+  const [hotels, setHotels] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [filterRating, setFilterRating] = useState('all')
   const [filterPrice, setFilterPrice] = useState('all')
+  const [filterLocation, setFilterLocation] = useState('all')
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
   const [guests, setGuests] = useState(2)
   const [favorites, setFavorites] = useState([])
+  const [selectedHotel, setSelectedHotel] = useState(null)
+  const [refreshKey, setRefreshKey] = useState(0)
 
-  const hotels = [
-    { 
-      id: 1, 
-      name: 'Taj Resort Goa', 
-      location: 'Goa, India', 
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-      rating: 4.8, 
-      price: 8999,
-      availableRooms: 15,
-      totalRooms: 20,
-      amenities: ['WiFi', 'Pool', 'Spa', 'Restaurant', 'Gym', 'Beach Access'],
-      description: 'Luxury beachfront resort with stunning ocean views and world-class service',
-      highlights: ['Private Beach', 'Infinity Pool', 'Fine Dining', 'Spa & Wellness'],
-      category: 'luxury'
-    },
-    { 
-      id: 2, 
-      name: 'Goa Marriott Resort', 
-      location: 'Goa, India', 
-      image: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80',
-      rating: 4.7, 
-      price: 7999,
-      availableRooms: 18,
-      totalRooms: 25,
-      amenities: ['WiFi', 'Pool', 'Gym', 'Bar', 'Restaurant', 'Kids Club'],
-      description: 'Premium resort with world-class amenities and family-friendly facilities',
-      highlights: ['Water Sports', 'Kids Activities', 'Multi-cuisine', 'Event Spaces'],
-      category: 'premium'
-    },
-    { 
-      id: 3, 
-      name: 'Kumarakom Lake Resort', 
-      location: 'Kerala, India', 
-      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80',
-      rating: 4.9, 
-      price: 12999,
-      availableRooms: 10,
-      totalRooms: 15,
-      amenities: ['WiFi', 'Pool', 'Ayurveda', 'Houseboat', 'Restaurant', 'Garden'],
-      description: 'Serene backwater resort with traditional Kerala architecture and authentic experiences',
-      highlights: ['Houseboat Stay', 'Ayurveda Spa', 'Traditional Cuisine', 'Village Tours'],
-      category: 'luxury'
-    },
-    { 
-      id: 4, 
-      name: 'Himalayan Retreat', 
-      location: 'Manali, India', 
-      image: 'https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1200&q=80',
-      rating: 4.6, 
-      price: 9999,
-      availableRooms: 10,
-      totalRooms: 15,
-      amenities: ['WiFi', 'Fireplace', 'Restaurant', 'Mountain View', 'Heating', 'Library'],
-      description: 'Cozy mountain retreat with breathtaking views and warm hospitality',
-      highlights: ['Mountain Views', 'Fireplace Lounge', 'Adventure Activities', 'Local Cuisine'],
-      category: 'boutique'
-    },
-    { 
-      id: 5, 
-      name: 'Rajasthan Palace Hotel', 
-      location: 'Jaipur, India', 
-      image: 'https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=1200&q=80',
-      rating: 4.7, 
-      price: 11999,
-      availableRooms: 8,
-      totalRooms: 10,
-      amenities: ['WiFi', 'Pool', 'Spa', 'Heritage', 'Restaurant', 'Courtyard'],
-      description: 'Royal palace hotel with authentic Rajasthani experience and heritage architecture',
-      highlights: ['Royal Suites', 'Heritage Tours', 'Folk Performances', 'Traditional Dining'],
-      category: 'heritage'
-    },
-    { 
-      id: 6, 
-      name: 'Andaman Beach Resort', 
-      location: 'Port Blair, India', 
-      image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80',
-      rating: 4.8, 
-      price: 10999,
-      availableRooms: 12,
-      totalRooms: 18,
-      amenities: ['WiFi', 'Pool', 'Diving Center', 'Beach Access', 'Restaurant', 'Water Sports'],
-      description: 'Beachfront resort with easy access to coral reefs and diving experiences',
-      highlights: ['Scuba Diving', 'Beach Access', 'Island Tours', 'Seafood Restaurant'],
-      category: 'resort'
-    },
-  ]
+  useEffect(() => {
+    let cancelled = false
+    const stored = JSON.parse(localStorage.getItem('favorites_hotels') || '[]')
+    setFavorites(stored)
+    const load = async () => {
+      try {
+        setLoading(true)
+        setError('')
+        const data = await api('/public/hotels')
+        if (!cancelled) setHotels(data.hotels || [])
+      } catch (err) {
+        if (!cancelled) setError(err.message || 'Failed to load hotels')
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    }
+    load()
+    return () => { cancelled = true }
+  }, [refreshKey])
+
+  useEffect(() => {
+    localStorage.setItem('favorites_hotels', JSON.stringify(favorites))
+  }, [favorites])
+
+  const locations = [...new Set(hotels.map(h => h.location).filter(Boolean))]
+  const avgPrice = hotels.length > 0
+    ? hotels.reduce((s, h) => s + (h.minPrice || 0), 0) / hotels.filter(h => h.minPrice > 0).length || 0
+    : 0
 
   const filteredHotels = hotels.filter(hotel => {
-    const matchesSearch = hotel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         hotel.location.toLowerCase().includes(searchTerm.toLowerCase())
+    const q = searchTerm.toLowerCase()
+    const matchesSearch = !q ||
+      hotel.name.toLowerCase().includes(q) ||
+      hotel.location.toLowerCase().includes(q) ||
+      (hotel.partner || '').toLowerCase().includes(q)
     const matchesRating = filterRating === 'all' ||
+                        (filterRating === '3plus' && hotel.rating >= 3) ||
                         (filterRating === '4plus' && hotel.rating >= 4) ||
                         (filterRating === '4.5plus' && hotel.rating >= 4.5)
+    const price = hotel.minPrice || 0
     const matchesPrice = filterPrice === 'all' ||
-                       (filterPrice === 'budget' && hotel.price < 10000) ||
-                       (filterPrice === 'mid' && hotel.price >= 10000 && hotel.price < 12000) ||
-                       (filterPrice === 'luxury' && hotel.price >= 12000)
-    return matchesSearch && matchesRating && matchesPrice
+                       (filterPrice === 'budget' && price > 0 && price < 5000) ||
+                       (filterPrice === 'mid' && price >= 5000 && price < 10000) ||
+                       (filterPrice === 'luxury' && price >= 10000)
+    const matchesLocation = filterLocation === 'all' || hotel.location === filterLocation
+    return matchesSearch && matchesRating && matchesPrice && matchesLocation
   })
 
   const toggleFavorite = (id) => {
-    setFavorites(prev => 
-      prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id]
-    )
+    setFavorites(prev => prev.includes(id) ? prev.filter(f => f !== id) : [...prev, id])
   }
 
   const getAmenityIcon = (amenity) => {
-    const icons = {
-      'WiFi': <Wifi className="h-4 w-4" />,
-      'Pool': <Waves className="h-4 w-4" />,
-      'Spa': <Coffee className="h-4 w-4" />,
-      'Gym': <Dumbbell className="h-4 w-4" />,
-      'Restaurant': <Utensils className="h-4 w-4" />,
-      'Beach Access': <Waves className="h-4 w-4" />,
-      'Houseboat': <Bed className="h-4 w-4" />,
-      'Ayurveda': <Sparkles className="h-4 w-4" />,
-      'Fireplace': <Coffee className="h-4 w-4" />,
-      'Mountain View': <MapPin className="h-4 w-4" />,
-      'Diving Center': <Waves className="h-4 w-4" />
-    }
-    return icons[amenity] || <CheckCircle className="h-4 w-4" />
+    const key = (amenity || '').toLowerCase()
+    if (key.includes('wifi')) return <Wifi className="h-3 w-3" />
+    if (key.includes('pool')) return <Waves className="h-3 w-3" />
+    if (key.includes('spa')) return <Coffee className="h-3 w-3" />
+    if (key.includes('gym')) return <Dumbbell className="h-3 w-3" />
+    if (key.includes('restaurant') || key.includes('dining')) return <Utensils className="h-3 w-3" />
+    return <CheckCircle className="h-3 w-3" />
   }
 
   const getCategoryBadge = (category) => {
@@ -142,12 +88,14 @@ const HotelSearchAvailability = () => {
       premium: { label: 'Premium', color: '#0ea5e9' },
       boutique: { label: 'Boutique', color: '#f59e0b' },
       heritage: { label: 'Heritage', color: '#ef4444' },
-      resort: { label: 'Resort', color: '#22c55e' }
+      resort: { label: 'Resort', color: '#22c55e' },
+      standard: { label: 'Standard', color: '#64748b' }
     }
-    return badges[category] || { label: 'Standard', color: '#64748b' }
+    return badges[category] || badges.standard
   }
 
   const getAvailabilityColor = (available, total) => {
+    if (total === 0) return '#94a3b8'
     const percentage = (available / total) * 100
     if (percentage > 50) return '#22c55e'
     if (percentage > 20) return '#f59e0b'
@@ -172,174 +120,217 @@ const HotelSearchAvailability = () => {
         </div>
       }
     >
-          <div className="booking-filters enhanced">
-            <div className="filter-group">
-              <label>Check-in</label>
-              <input 
-                type="date" 
-                value={checkIn}
-                onChange={(e) => setCheckIn(e.target.value)}
-              />
-            </div>
-            <div className="filter-group">
-              <label>Check-out</label>
-              <input 
-                type="date" 
-                value={checkOut}
-                onChange={(e) => setCheckOut(e.target.value)}
-              />
-            </div>
-            <div className="filter-group">
-              <label>Guests</label>
-              <input 
-                type="number" 
-                min="1"
-                value={guests}
-                onChange={(e) => setGuests(parseInt(e.target.value))}
-              />
-            </div>
+      <div className="hotel-search-toolbar">
+        <div className="filter-group">
+          <label>Check-in</label>
+          <input type="date" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} />
+        </div>
+        <div className="filter-group">
+          <label>Check-out</label>
+          <input type="date" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} />
+        </div>
+        <div className="filter-group">
+          <label>Guests</label>
+          <input type="number" min="1" value={guests} onChange={(e) => setGuests(parseInt(e.target.value) || 1)} />
+        </div>
+        <button className="btn-primary enhanced" onClick={() => setRefreshKey(k => k + 1)}>
+          <Search className="h-4 w-4" /> Search
+        </button>
+      </div>
+
+      <div className="filters-section enhanced">
+        <div className="search-bar enhanced">
+          <Search className="search-icon" />
+          <input type="text" placeholder="Search hotels by name or location..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        </div>
+        <div className="filter-controls enhanced">
+          <div className="filter-group">
+            <label>Rating</label>
+            <select value={filterRating} onChange={(e) => setFilterRating(e.target.value)} className="filter-select">
+              <option value="all">All Ratings</option>
+              <option value="3plus">3+ Stars</option>
+              <option value="4plus">4+ Stars</option>
+              <option value="4.5plus">4.5+ Stars</option>
+            </select>
           </div>
-
-          <div className="filters-section enhanced">
-            <div className="search-bar enhanced">
-              <Search className="search-icon" />
-              <input 
-                type="text" 
-                placeholder="Search hotels by name or location..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="filter-controls enhanced">
-              <div className="filter-group">
-                <label>Rating</label>
-                <select 
-                  value={filterRating}
-                  onChange={(e) => setFilterRating(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Ratings</option>
-                  <option value="4plus">4+ Stars</option>
-                  <option value="4.5plus">4.5+ Stars</option>
-                </select>
-              </div>
-              <div className="filter-group">
-                <label>Price Range</label>
-                <select 
-                  value={filterPrice}
-                  onChange={(e) => setFilterPrice(e.target.value)}
-                  className="filter-select"
-                >
-                  <option value="all">All Prices</option>
-                  <option value="budget">Budget (&lt;₹10k)</option>
-                  <option value="mid">Mid-Range (₹10k-₹12k)</option>
-                  <option value="luxury">Luxury (₹12k+)</option>
-                </select>
-              </div>
-            </div>
+          <div className="filter-group">
+            <label>Price Range</label>
+            <select value={filterPrice} onChange={(e) => setFilterPrice(e.target.value)} className="filter-select">
+              <option value="all">All Prices</option>
+              <option value="budget">Budget (&lt;₹5k)</option>
+              <option value="mid">Mid-Range (₹5k-₹10k)</option>
+              <option value="luxury">Luxury (₹10k+)</option>
+            </select>
           </div>
+          {locations.length > 0 && (
+            <div className="filter-group">
+              <label>Location</label>
+              <select value={filterLocation} onChange={(e) => setFilterLocation(e.target.value)} className="filter-select">
+                <option value="all">All Locations</option>
+                {locations.map(loc => <option key={loc} value={loc}>{loc}</option>)}
+              </select>
+            </div>
+          )}
+        </div>
+      </div>
 
-          <div className="hotels-grid enhanced">
-            {filteredHotels.map(hotel => {
-              const categoryBadge = getCategoryBadge(hotel.category)
-              return (
-                <div key={hotel.id} className="hotel-card enhanced">
-                  <div className="hotel-image enhanced">
-                    <div className="hotel-emoji-wrapper">
-                      <img className="cp-cover" src={hotel.image} alt={hotel.name} />
-                    </div>
-                    <button 
-                      onClick={() => toggleFavorite(hotel.id)}
-                      className={`favorite-btn enhanced ${favorites.includes(hotel.id) ? 'active' : ''}`}
-                    >
-                      <Heart className="h-5 w-5" />
-                    </button>
-                    <div className="hotel-category-badge" style={{ backgroundColor: categoryBadge.color }}>
-                      <span>{categoryBadge.label}</span>
-                    </div>
-                  </div>
-                  <div className="hotel-content enhanced">
-                    <div className="hotel-header enhanced">
-                      <h3>{hotel.name}</h3>
-                      <div className="hotel-rating enhanced">
-                        <Star className="h-4 w-4 fill" />
-                        <span>{hotel.rating}</span>
-                        <small>({(hotel.rating * 100).toFixed(0)} reviews)</small>
-                      </div>
-                    </div>
-                    <div className="hotel-location enhanced">
-                      <LocationIcon className="h-4 w-4" />
-                      <span>{hotel.location}</span>
-                    </div>
-                    <p className="hotel-description enhanced">{hotel.description}</p>
-                    
-                    <div className="hotel-highlights">
-                      <h4>Property Highlights</h4>
-                      <div className="highlights-grid">
-                        {hotel.highlights.slice(0, 4).map((highlight, idx) => (
-                          <span key={idx} className="highlight-tag">
-                            <Sparkles className="h-3 w-3" />
-                            {highlight}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+      {loading && <div className="hotel-loading">Loading hotels...</div>}
+      {error && <div className="hotel-error"><AlertCircle size={18} /> {error}</div>}
+      {!loading && !error && hotels.length === 0 && (
+        <div className="hotel-empty">
+          <Bed size={48} style={{ color: '#cbd5e1' }} />
+          <h4>No hotels available yet</h4>
+          <p>Hotel partners haven't listed any properties yet. Check back soon!</p>
+        </div>
+      )}
 
-                    <div className="hotel-amenities enhanced">
-                      <h4>Amenities</h4>
-                      <div className="amenities-grid">
-                        {hotel.amenities.slice(0, 6).map((amenity, idx) => (
-                          <span key={idx} className="amenity-tag enhanced">
-                            {getAmenityIcon(amenity)}
-                            {amenity}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
+      {!loading && !error && filteredHotels.length === 0 && hotels.length > 0 && (
+        <div className="hotel-empty">
+          <Search size={48} style={{ color: '#cbd5e1' }} />
+          <h4>No hotels match your filters</h4>
+          <p>Try adjusting your search or filters.</p>
+          <button className="btn-secondary" onClick={() => { setSearchTerm(''); setFilterRating('all'); setFilterPrice('all'); setFilterLocation('all') }}>Clear filters</button>
+        </div>
+      )}
 
-                    <div className="hotel-availability enhanced">
-                      <div className="availability-header">
-                        <Bed className="h-4 w-4" />
-                        <span>Room Availability</span>
-                      </div>
-                      <div className="availability-bar-container">
-                        <div className="availability-bar">
-                          <div 
-                            className="availability-fill" 
-                            style={{ 
-                              width: `${(hotel.availableRooms / hotel.totalRooms) * 100}%`,
-                              backgroundColor: getAvailabilityColor(hotel.availableRooms, hotel.totalRooms)
-                            }}
-                          ></div>
-                        </div>
-                        <span className="availability-text">
-                          {hotel.availableRooms} / {hotel.totalRooms} rooms available
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="hotel-footer enhanced">
-                      <div className="hotel-price enhanced">
-                        <div>
-                          <small>Per night</small>
-                          <strong>₹{hotel.price.toLocaleString()}</strong>
-                        </div>
-                      </div>
-                      <div className="hotel-features">
-                        <span className="feature-badge">
-                          <Shield className="h-3 w-3" />
-                          Free Cancellation
-                        </span>
-                      </div>
-                      <Link to="/customer/bookings" className="btn-primary enhanced">
-                        Book Now
-                      </Link>
-                    </div>
+      <div className="hotels-grid enhanced">
+        {filteredHotels.map(hotel => {
+          const categoryBadge = getCategoryBadge(hotel.category)
+          const isFavorite = favorites.includes(hotel._id)
+          return (
+            <div key={hotel._id} className="hotel-card enhanced">
+              <div className="hotel-image enhanced">
+                <img className="cp-cover" src={hotel.image} alt={hotel.name} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80' }} />
+                <button onClick={() => toggleFavorite(hotel._id)} className={`favorite-btn enhanced ${isFavorite ? 'active' : ''}`}>
+                  <Heart className="h-5 w-5" fill={isFavorite ? '#ef4444' : 'none'} />
+                </button>
+                <div className="hotel-category-badge" style={{ backgroundColor: categoryBadge.color }}>
+                  <span>{categoryBadge.label}</span>
+                </div>
+              </div>
+              <div className="hotel-content enhanced">
+                <div className="hotel-header enhanced">
+                  <h3>{hotel.name}</h3>
+                  <div className="hotel-rating enhanced">
+                    <Star className="h-4 w-4 fill" style={{ color: '#fbbf24', fill: '#fbbf24' }} />
+                    <span>{hotel.rating}</span>
+                    <small>({hotel.reviewCount} reviews)</small>
                   </div>
                 </div>
-              )
-            })}
+                <div className="hotel-location enhanced">
+                  <MapPin className="h-4 w-4" />
+                  <span>{hotel.location}</span>
+                </div>
+                <p className="hotel-description enhanced">{hotel.description}</p>
+
+                {hotel.amenities && hotel.amenities.length > 0 && (
+                  <div className="hotel-amenities enhanced">
+                    <h4>Amenities</h4>
+                    <div className="amenities-grid">
+                      {hotel.amenities.slice(0, 6).map((amenity, idx) => (
+                        <span key={idx} className="amenity-tag enhanced">
+                          {getAmenityIcon(amenity)}
+                          {amenity}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {hotel.totalRooms > 0 && (
+                  <div className="hotel-availability enhanced">
+                    <div className="availability-header">
+                      <Bed className="h-4 w-4" />
+                      <span>Room Availability</span>
+                    </div>
+                    <div className="availability-bar-container">
+                      <div className="availability-bar">
+                        <div className="availability-fill" style={{ width: `${(hotel.availableRooms / hotel.totalRooms) * 100}%`, backgroundColor: getAvailabilityColor(hotel.availableRooms, hotel.totalRooms) }}></div>
+                      </div>
+                      <span className="availability-text">{hotel.availableRooms} / {hotel.totalRooms} rooms available</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="hotel-footer enhanced">
+                  <div className="hotel-price enhanced">
+                    <div>
+                      <small>{hotel.minPrice && hotel.maxPrice && hotel.minPrice !== hotel.maxPrice ? 'Starting from' : 'Per night'}</small>
+                      <strong>{hotel.minPrice ? `₹${hotel.minPrice.toLocaleString()}` : 'Price on request'}</strong>
+                      {hotel.maxPrice && hotel.minPrice !== hotel.maxPrice && (
+                        <small style={{ display: 'block', color: '#64748b' }}>up to ₹{hotel.maxPrice.toLocaleString()}</small>
+                      )}
+                    </div>
+                  </div>
+                  <button onClick={() => setSelectedHotel(hotel)} className="btn-secondary enhanced">
+                    View Details
+                  </button>
+                  <Link to="/customer/bookings" className="btn-primary enhanced" state={{ hotel }}>
+                    Book Now
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {selectedHotel && (
+        <div className="modal-overlay" onClick={() => setSelectedHotel(null)}>
+          <div className="modal hotel-detail-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{selectedHotel.name}</h3>
+              <button className="modal-close" onClick={() => setSelectedHotel(null)}><X size={18} /></button>
+            </div>
+            <div className="modal-body">
+              <img src={selectedHotel.image} alt={selectedHotel.name} style={{ width: '100%', height: '200px', objectFit: 'cover', borderRadius: '8px', marginBottom: '1rem' }} onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80' }} />
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem 1rem', marginBottom: '1rem' }}>
+                <div><strong>Location:</strong> {selectedHotel.location}</div>
+                <div><strong>Rating:</strong> {selectedHotel.rating} ★ ({selectedHotel.reviewCount} reviews)</div>
+                <div><strong>Partner:</strong> {selectedHotel.partner || 'Verified'}</div>
+                <div><strong>Category:</strong> {getCategoryBadge(selectedHotel.category).label}</div>
+              </div>
+              <p style={{ color: '#475569', marginBottom: '1rem' }}>{selectedHotel.description}</p>
+
+              {selectedHotel.amenities && selectedHotel.amenities.length > 0 && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <h4 style={{ margin: '0 0 0.5rem', color: '#0f172a' }}>Amenities</h4>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    {selectedHotel.amenities.map((a, i) => (
+                      <span key={i} style={{ padding: '0.25rem 0.6rem', background: '#f1f5f9', borderRadius: '6px', fontSize: '0.85rem', color: '#334155' }}>{a}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedHotel.rooms && selectedHotel.rooms.length > 0 && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <h4 style={{ margin: '0 0 0.5rem', color: '#0f172a' }}>Available Rooms</h4>
+                  <table className="data-table">
+                    <thead><tr><th>Type</th><th>Price/night</th><th>Available</th></tr></thead>
+                    <tbody>
+                      {selectedHotel.rooms.map((r, i) => (
+                        <tr key={i}>
+                          <td>{r.type}</td>
+                          <td>₹{(r.price || 0).toLocaleString()}</td>
+                          <td>{r.available} / {r.total}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <div className="form-actions" style={{ justifyContent: 'flex-end', display: 'flex', gap: '0.5rem' }}>
+                <button className="btn-secondary" onClick={() => setSelectedHotel(null)}>Close</button>
+                <Link to="/customer/bookings" className="btn-primary enhanced" state={{ hotel: selectedHotel }} onClick={() => setSelectedHotel(null)}>
+                  Book Now
+                </Link>
+              </div>
+            </div>
           </div>
+        </div>
+      )}
     </CustomerLayout>
   )
 }

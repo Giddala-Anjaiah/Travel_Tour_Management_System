@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Calendar, Building, Plus, Edit, Trash2, Search, Download, MapPin, Clock, Users, Star } from 'lucide-react'
+import { Calendar, Building, Plus, Pencil as Edit, Trash2, Search, Download, MapPin, Clock, Users, Star } from 'lucide-react'
 import { api, downloadCsv, formValues } from '../../api'
 import AdminLayout from './AdminLayout'
 

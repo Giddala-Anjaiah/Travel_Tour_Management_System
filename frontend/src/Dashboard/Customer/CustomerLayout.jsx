@@ -1,9 +1,10 @@
-import { Compass, MapPin, Ticket, Calendar, Building, CreditCard, FileText, Heart, User, LogOut } from 'lucide-react'
+import { BarChart3, Compass, MapPin, Ticket, Calendar, Building, CreditCard, FileText, Heart, User, LogOut } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../Dashboard.css'
 
 const navItems = [
-  { to: '/customer/dashboard', match: 'dashboard', label: 'Destinations', icon: MapPin },
+  { to: '/customer/dashboard', match: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+  { to: '/customer/destinations', match: 'destinations', label: 'Destinations', icon: MapPin },
   { to: '/customer/packages', match: 'packages', label: 'Packages', icon: Ticket },
   { to: '/customer/itineraries', match: 'itineraries', label: 'Itineraries', icon: Calendar },
   { to: '/customer/hotels', match: 'hotels', label: 'Hotels', icon: Building },

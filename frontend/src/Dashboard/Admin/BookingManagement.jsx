@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Ticket, Plus, Edit, Trash2, Search, Download, DollarSign, Calendar, CreditCard, CheckCircle, Clock } from 'lucide-react'
+import { Ticket, Plus, Pencil as Edit, Trash2, Search, Download, DollarSign, Calendar, CreditCard, CheckCircle, Clock } from 'lucide-react'
 import { api, downloadCsv, formValues, formatCurrency, formatDate } from '../../api'
 import AdminLayout from './AdminLayout'
 

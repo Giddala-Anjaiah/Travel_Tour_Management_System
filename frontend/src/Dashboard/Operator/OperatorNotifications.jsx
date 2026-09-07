@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import usePolling from '../../hooks/usePolling'
 import { Bell, Search, Check, Trash2, Clock, DollarSign, Star, Settings, AlertCircle, Sparkles, TrendingUp, Award } from 'lucide-react'
 import '../Dashboard.css'
 
@@ -8,10 +9,6 @@ const OperatorNotifications = () => {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('all')
-
-  useEffect(() => {
-    fetchNotifications()
-  }, [])
 
   const fetchNotifications = async () => {
     try {
@@ -32,6 +29,12 @@ const OperatorNotifications = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchNotifications()
+  }, [])
+
+  usePolling(fetchNotifications, 15000)
 
   const handleMarkAsRead = async (id) => {
     try {

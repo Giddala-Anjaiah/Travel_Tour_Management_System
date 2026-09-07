@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Bed, Plus, Edit, Trash2, Search, Download, Building, Users, DollarSign } from 'lucide-react'
+import { Bed, Plus, Pencil as Edit, Trash2, Search, Download, Building, Users, DollarSign } from 'lucide-react'
 import { api, downloadCsv, formValues, formatCurrency } from '../../api'
 import AdminLayout from './AdminLayout'
 

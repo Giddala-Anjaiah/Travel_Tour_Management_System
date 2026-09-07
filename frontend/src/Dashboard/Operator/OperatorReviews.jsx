@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import usePolling from '../../hooks/usePolling'
 import { Star, Search, Filter, MessageSquare, Send, CheckCircle, Clock, Sparkles, TrendingUp, Award } from 'lucide-react'
 import '../Dashboard.css'
 
@@ -9,10 +10,6 @@ const OperatorReviews = () => {
   const [filterRating, setFilterRating] = useState('all')
   const [selectedReview, setSelectedReview] = useState(null)
   const [responseText, setResponseText] = useState('')
-
-  useEffect(() => {
-    fetchReviews()
-  }, [])
 
   const fetchReviews = async () => {
     try {
@@ -32,6 +29,12 @@ const OperatorReviews = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchReviews()
+  }, [])
+
+  usePolling(fetchReviews, 15000)
 
   const handleResponse = async (reviewId) => {
     if (!responseText.trim()) {

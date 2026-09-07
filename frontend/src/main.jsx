@@ -6,7 +6,7 @@ import App from './App.jsx'
 import Login from './Login.jsx'
 import Signup from './Signup.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
-import CustomerDashboard from './Dashboard/CustomerDashboard.jsx'
+import CustomerDashboard from './Dashboard/Customer/CustomerDashboard.jsx'
 import OperatorDashboard from './Dashboard/Operator/OperatorDashboard.jsx'
 import OperatorProfilePage from './Dashboard/Operator/OperatorProfilePage.jsx'
 import OperatorPackagesPage from './Dashboard/Operator/OperatorPackagesPage.jsx'
@@ -127,13 +127,21 @@ createRoot(document.getElementById('root')).render(
         />
         
         {/* Customer Routes */}
-        <Route 
-          path="/customer/dashboard" 
+        <Route
+          path="/customer/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['customer']}>
+              <CustomerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customer/destinations"
           element={
             <ProtectedRoute allowedRoles={['customer']}>
               <DestinationExploration />
             </ProtectedRoute>
-          } 
+          }
         />
         <Route 
           path="/customer/packages" 

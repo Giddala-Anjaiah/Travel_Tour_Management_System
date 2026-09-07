@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { MapPin, Calendar, DollarSign, Plus, Search, Edit, Trash2, Star, CheckCircle, XCircle, Sparkles, Award, Image as ImageIcon, X } from 'lucide-react'
+import usePolling from '../../hooks/usePolling'
+import { MapPin, Calendar, Clock, DollarSign, Plus, Search, Pencil as Edit, Trash2, Star, CheckCircle, XCircle, Sparkles, Award, Image as ImageIcon, X } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorPackages = () => {
@@ -32,10 +33,6 @@ const OperatorPackages = () => {
     images: []
   })
 
-  useEffect(() => {
-    fetchPackages()
-  }, [])
-
   const fetchPackages = async () => {
     try {
       const token = localStorage.getItem('token')
@@ -54,6 +51,12 @@ const OperatorPackages = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchPackages()
+  }, [])
+
+  usePolling(fetchPackages, 15000)
 
   const handleCreate = () => {
     setEditingPackage(null)

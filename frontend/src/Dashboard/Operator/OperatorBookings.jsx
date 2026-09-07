@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import usePolling from '../../hooks/usePolling'
 import { Clock, Search, Filter, CheckCircle, XCircle, AlertCircle, Calendar, Users, DollarSign, Eye, ArrowRight, Sparkles, TrendingUp } from 'lucide-react'
 import '../Dashboard.css'
 
@@ -9,10 +10,6 @@ const OperatorBookings = () => {
   const [filterStatus, setFilterStatus] = useState('all')
   const [selectedBooking, setSelectedBooking] = useState(null)
   const [showModal, setShowModal] = useState(false)
-
-  useEffect(() => {
-    fetchBookings()
-  }, [])
 
   const fetchBookings = async () => {
     try {
@@ -32,6 +29,12 @@ const OperatorBookings = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchBookings()
+  }, [])
+
+  usePolling(fetchBookings, 15000)
 
   const handleStatusUpdate = async (bookingId, newStatus) => {
     try {

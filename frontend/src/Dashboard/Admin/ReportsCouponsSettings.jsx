@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { PieChart, Settings, Plus, Edit, Trash2, Search, Download, Users, MapPin, Tag, Bell, Shield, Ticket } from 'lucide-react'
+import { PieChart, Settings, Plus, Pencil as Edit, Trash2, Search, Download, Users, MapPin, Tag, Bell, Shield, Ticket } from 'lucide-react'
 import { api, downloadCsv, formValues, formatCurrency, formatDate } from '../../api'
 import AdminLayout from './AdminLayout'
 
