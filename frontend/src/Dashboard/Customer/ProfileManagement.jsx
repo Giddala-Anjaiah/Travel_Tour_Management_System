@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { User, Mail, Phone, Save, Camera, Sparkles, Award, CheckCircle, Lock, Shield, CreditCard, Calendar as CalendarIcon, LogOut } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { User, Mail, Save, Camera, Sparkles, Award, CheckCircle, Lock, Shield, Calendar as CalendarIcon, LogOut } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../../api'
 import '../Dashboard.css'

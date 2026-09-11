@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import usePolling from '../../hooks/usePolling'
-import { Calendar, MapPin, Plus, Search, Pencil as Edit, Trash2, Clock, Building, Utensils, Car, Bed, ArrowRight, Sparkles, X } from 'lucide-react'
+import { Calendar, Plus, Search, Pencil as Edit, Trash2, Building, Sparkles } from 'lucide-react'
 import '../Dashboard.css'
 
 const emptyDay = () => ({
@@ -68,8 +68,10 @@ const OperatorItineraries = () => {
   }
 
   useEffect(() => {
-    fetchItineraries()
-    fetchPackages()
+    Promise.resolve().then(() => {
+      fetchItineraries()
+      fetchPackages()
+    })
   }, [])
 
   usePolling(fetchItineraries, 15000)

@@ -51,7 +51,9 @@ const InvoicesReviews = () => {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    Promise.resolve().then(() => load())
+  }, [])
 
   const filteredInvoices = invoices.filter((invoice) => {
     const haystack = `${invoice.customer} ${invoice.invoiceNo} ${invoice.package}`.toLowerCase()

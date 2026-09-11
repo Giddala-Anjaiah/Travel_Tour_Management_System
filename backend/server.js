@@ -627,6 +627,66 @@ const notificationSchema = new mongoose.Schema({
 
 const Notification = mongoose.model('Notification', notificationSchema);
 
+// Audit Log Schema
+const auditLogSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  userRole: {
+    type: String,
+    enum: ['admin', 'customer', 'tour_operator', 'hotel_partner'],
+    required: true
+  },
+  action: {
+    type: String,
+    enum: ['create', 'update', 'delete', 'status_change', 'login', 'export', 'settings_update'],
+    required: true
+  },
+  entityType: {
+    type: String,
+    enum: ['user', 'package', 'hotel', 'room', 'booking', 'invoice', 'review', 'coupon', 'itinerary', 'settings', 'notification'],
+    required: true
+  },
+  entityId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: false
+  },
+  entityName: String,
+  details: {
+    before: mongoose.Schema.Types.Mixed,
+    after: mongoose.Schema.Types.Mixed,
+    changes: [String],
+    ip: String,
+    userAgent: String
+  },
+  timestamp: {
+    type: Date,
+    default: Date.now,
+    index: true
+  }
+});
+
+const AuditLog = mongoose.model('AuditLog', auditLogSchema);
+
+// Helper to create audit log entries
+async function createAuditLog(userId, userRole, action, entityType, entityId, entityName, details = {}) {
+  try {
+    const entry = new AuditLog({
+      userId, userRole, action, entityType, entityId, entityName,
+      details: {
+        ...details,
+        ip: details.ip,
+        userAgent: details.userAgent
+      }
+    });
+    await entry.save();
+  } catch (logError) {
+    console.error('Failed to create audit log:', logError.message);
+  }
+}
+
 // Pricing Schema
 const pricingSchema = new mongoose.Schema({
   packageId: {
@@ -810,6 +870,23 @@ const hotelBookingSchema = new mongoose.Schema({
 });
 
 const HotelBooking = mongoose.model('HotelBooking', hotelBookingSchema);
+
+function isOperatorProfileComplete(profile) {
+  const requiredFields = [
+    'companyName',
+    'businessAddress',
+    'city',
+    'state',
+    'country',
+    'postalCode',
+    'website',
+    'description',
+    'businessRegNumber',
+    'licenseNumber',
+    'taxId'
+  ];
+  return requiredFields.every(field => String(profile?.[field] || '').trim().length > 0);
+}
 
 function pickUpdates(body, keys) {
   const updates = {};
@@ -1172,15 +1249,20 @@ app.get('/api/admin/users', async (req, res) => {
 });
 
 app.post('/api/admin/users', async (req, res) => {
-  try {
-    const { fullName, email, phone, password, role } = req.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ fullName, email, phone, password: hashedPassword, role });
-    await newUser.save();
-    const safeUser = newUser.toObject();
-    delete safeUser.password;
-    res.status(201).json({ message: 'User created successfully', user: safeUser });
-  } catch (error) {
+    try {
+      const { fullName, email, phone, password, role } = req.body;
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const newUser = new User({ fullName, email, phone, password: hashedPassword, role });
+      await newUser.save();
+      const safeUser = newUser.toObject();
+      delete safeUser.password;
+      await createAuditLog(req.user.userId, req.user.role, 'create', 'user', newUser._id, newUser.fullName, {
+        after: { fullName, email, role },
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      res.status(201).json({ message: 'User created successfully', user: safeUser });
+    } catch (error) {
     if (duplicateError(error)) {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
@@ -1188,30 +1270,41 @@ app.post('/api/admin/users', async (req, res) => {
   }
 });
 
-app.put('/api/admin/users/:id', async (req, res) => {
-  try {
-    const updates = pickUpdates(req.body, ['fullName', 'email', 'phone', 'role', 'status']);
-    if (req.body.password) {
-      updates.password = await bcrypt.hash(req.body.password, 10);
+  app.put('/api/admin/users/:id', async (req, res) => {
+    try {
+      const updates = pickUpdates(req.body, ['fullName', 'email', 'phone', 'role', 'status']);
+      if (req.body.password) {
+        updates.password = await bcrypt.hash(req.body.password, 10);
+      }
+      const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      await createAuditLog(req.user.userId, req.user.role, 'update', 'user', user._id, user.fullName, {
+        changes: Object.keys(updates),
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      res.status(200).json({ message: 'User updated successfully', user });
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating user' });
     }
-    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    res.status(200).json({ message: 'User updated successfully', user });
-  } catch (error) {
-    res.status(500).json({ message: 'Error updating user' });
-  }
-});
+  });
 
-app.delete('/api/admin/users/:id', async (req, res) => {
-  try {
-    await User.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'User deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error deleting user' });
-  }
-});
+  app.delete('/api/admin/users/:id', async (req, res) => {
+    try {
+      const user = await User.findById(req.params.id);
+      await User.findByIdAndDelete(req.params.id);
+      await createAuditLog(req.user.userId, req.user.role, 'delete', 'user', req.params.id, user?.fullName || 'Unknown User', {
+        before: { fullName: user?.fullName, email: user?.email, role: user?.role },
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      res.status(200).json({ message: 'User deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error deleting user' });
+    }
+  });
 
 // Package Management Routes
 app.get('/api/admin/packages', async (req, res) => {
@@ -1415,49 +1508,87 @@ app.get('/api/admin/bookings', async (req, res) => {
 });
 
 app.post('/api/admin/bookings', async (req, res) => {
-  try {
-    const payload = { ...req.body };
-    if (payload.paymentStatus === 'paid' && !payload.status) {
-      payload.status = 'confirmed';
-    }
-    const newBooking = new Booking(payload);
-    await newBooking.save();
-    if (newBooking.package) {
-      await Package.findOneAndUpdate({ name: newBooking.package }, { $inc: { bookings: 1 } });
-    }
-    if (newBooking.paymentStatus === 'paid') {
-      await createPaidInvoice(newBooking);
-    }
-    res.status(201).json({ message: 'Booking created successfully', booking: newBooking });
-  } catch (error) {
+    try {
+      const payload = { ...req.body };
+      if (payload.paymentStatus === 'paid' && !payload.status) {
+        payload.status = 'confirmed';
+      }
+      const newBooking = new Booking(payload);
+      await newBooking.save();
+      if (newBooking.package) {
+        await Package.findOneAndUpdate({ name: newBooking.package }, { $inc: { bookings: 1 } });
+      }
+      if (newBooking.paymentStatus === 'paid') {
+        await createPaidInvoice(newBooking);
+      }
+      await createAuditLog(req.user.userId, req.user.role, 'create', 'booking', newBooking._id, newBooking.bookingId || newBooking.package, {
+        after: { customer: newBooking.customer, package: newBooking.package, amount: newBooking.amount, status: newBooking.status },
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      const pkg = await Package.findOne({ name: newBooking.package }).lean();
+      if (pkg?.operatorId) {
+        await new Notification({
+          userId: pkg.operatorId,
+          type: 'booking',
+          title: 'New Booking Received',
+          message: `${newBooking.customer} booked ${newBooking.package} for ${newBooking.dates || 'your package'}.`,
+          relatedId: newBooking._id
+        }).save().catch(() => {});
+      }
+      res.status(201).json({ message: 'Booking created successfully', booking: newBooking });
+    } catch (error) {
     res.status(500).json({ message: 'Error creating booking' });
   }
 });
 
-app.put('/api/admin/bookings/:id', async (req, res) => {
-  try {
-    const updates = pickUpdates(req.body, ['customer', 'email', 'package', 'dates', 'amount', 'status', 'paymentStatus']);
-    if (updates.paymentStatus === 'paid' && !updates.status) {
-      updates.status = 'confirmed';
-    }
-    const booking = await Booking.findByIdAndUpdate(req.params.id, updates, { new: true });
-    if (!booking) {
-      return res.status(404).json({ message: 'Booking not found' });
-    }
-    if (booking.paymentStatus === 'paid') {
-      await createPaidInvoice(booking);
-    }
-    res.status(200).json({ message: 'Booking updated successfully', booking });
-  } catch (error) {
+  app.put('/api/admin/bookings/:id', async (req, res) => {
+    try {
+      const updates = pickUpdates(req.body, ['customer', 'email', 'package', 'dates', 'amount', 'status', 'paymentStatus']);
+      if (updates.paymentStatus === 'paid' && !updates.status) {
+        updates.status = 'confirmed';
+      }
+      const booking = await Booking.findByIdAndUpdate(req.params.id, updates, { new: true });
+      if (!booking) {
+        return res.status(404).json({ message: 'Booking not found' });
+      }
+      if (booking.paymentStatus === 'paid') {
+        await createPaidInvoice(booking);
+      }
+      await createAuditLog(req.user.userId, req.user.role, 'update', 'booking', booking._id, booking.bookingId || booking.package, {
+        changes: Object.keys(updates),
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      if (updates.status || updates.paymentStatus) {
+        const customerUser = await User.findOne({ fullName: booking.customer, role: 'customer' }).lean();
+        if (customerUser) {
+          await new Notification({
+            userId: customerUser._id,
+            type: 'payment',
+            title: booking.status === 'confirmed' ? 'Booking Confirmed' : 'Booking Updated',
+            message: `Your booking for ${booking.package || 'package'} has been ${booking.status}.`,
+            relatedId: booking._id
+          }).save().catch(() => {});
+        }
+      }
+      res.status(200).json({ message: 'Booking updated successfully', booking });
+    } catch (error) {
     res.status(500).json({ message: 'Error updating booking' });
   }
 });
 
 app.delete('/api/admin/bookings/:id', async (req, res) => {
-  try {
-    await Booking.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Booking deleted successfully' });
-  } catch (error) {
+    try {
+      const booking = await Booking.findById(req.params.id);
+      await Booking.findByIdAndDelete(req.params.id);
+      await createAuditLog(req.user.userId, req.user.role, 'delete', 'booking', req.params.id, booking?.bookingId || booking?.package || 'Unknown Booking', {
+        before: { customer: booking?.customer, package: booking?.package, amount: booking?.amount, status: booking?.status },
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      res.status(200).json({ message: 'Booking deleted successfully' });
+    } catch (error) {
     res.status(500).json({ message: 'Error deleting booking' });
   }
 });
@@ -1530,6 +1661,11 @@ app.post('/api/admin/reviews', async (req, res) => {
     if (newReview.status === 'approved') {
       await refreshPackageRating(newReview.package);
     }
+    await createAuditLog(req.user.userId, req.user.role, 'create', 'review', newReview._id, `${newReview.customer} - ${newReview.package}`, {
+      after: { customer: newReview.customer, package: newReview.package, rating: newReview.rating, status: newReview.status },
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
     res.status(201).json({ message: 'Review created successfully', review: newReview });
   } catch (error) {
     res.status(500).json({ message: 'Error creating review' });
@@ -1544,6 +1680,12 @@ app.put('/api/admin/reviews/:id', async (req, res) => {
       return res.status(404).json({ message: 'Review not found' });
     }
     await refreshPackageRating(review.package);
+    await createAuditLog(req.user.userId, req.user.role, 'update', 'review', review._id, `${review.customer} - ${review.package}`, {
+      changes: Object.keys(updates),
+      after: { rating: review.rating, status: review.status },
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
     res.status(200).json({ message: 'Review updated successfully', review });
   } catch (error) {
     res.status(500).json({ message: 'Error updating review' });
@@ -1552,7 +1694,13 @@ app.put('/api/admin/reviews/:id', async (req, res) => {
 
 app.delete('/api/admin/reviews/:id', async (req, res) => {
   try {
+    const review = await Review.findById(req.params.id);
     await Review.findByIdAndDelete(req.params.id);
+    await createAuditLog(req.user.userId, req.user.role, 'delete', 'review', req.params.id, `${review?.customer || 'Unknown'} - ${review?.package || 'Unknown'}`, {
+      before: { customer: review?.customer, package: review?.package, rating: review?.rating, status: review?.status },
+      ip: req.ip,
+      userAgent: req.get('User-Agent')
+    });
     res.status(200).json({ message: 'Review deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting review' });
@@ -1570,11 +1718,16 @@ app.get('/api/admin/coupons', async (req, res) => {
 });
 
 app.post('/api/admin/coupons', async (req, res) => {
-  try {
-    const newCoupon = new Coupon(req.body);
-    await newCoupon.save();
-    res.status(201).json({ message: 'Coupon created successfully', coupon: newCoupon });
-  } catch (error) {
+    try {
+      const newCoupon = new Coupon(req.body);
+      await newCoupon.save();
+      await createAuditLog(req.user.userId, req.user.role, 'create', 'coupon', newCoupon._id, newCoupon.code, {
+        after: { code: newCoupon.code, discount: newCoupon.discount, type: newCoupon.type, status: newCoupon.status },
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      res.status(201).json({ message: 'Coupon created successfully', coupon: newCoupon });
+    } catch (error) {
     if (duplicateError(error)) {
       return res.status(400).json({ message: 'Coupon code already exists' });
     }
@@ -1583,23 +1736,34 @@ app.post('/api/admin/coupons', async (req, res) => {
 });
 
 app.put('/api/admin/coupons/:id', async (req, res) => {
-  try {
-    const updates = pickUpdates(req.body, ['code', 'discount', 'type', 'minPurchase', 'maxDiscount', 'status', 'expiry', 'usage', 'maxUsage']);
-    const coupon = await Coupon.findByIdAndUpdate(req.params.id, updates, { new: true });
-    if (!coupon) {
-      return res.status(404).json({ message: 'Coupon not found' });
-    }
-    res.status(200).json({ message: 'Coupon updated successfully', coupon });
-  } catch (error) {
+    try {
+      const updates = pickUpdates(req.body, ['code', 'discount', 'type', 'minPurchase', 'maxDiscount', 'status', 'expiry', 'usage', 'maxUsage']);
+      const coupon = await Coupon.findByIdAndUpdate(req.params.id, updates, { new: true });
+      if (!coupon) {
+        return res.status(404).json({ message: 'Coupon not found' });
+      }
+      await createAuditLog(req.user.userId, req.user.role, 'update', 'coupon', coupon._id, coupon.code, {
+        changes: Object.keys(updates),
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      res.status(200).json({ message: 'Coupon updated successfully', coupon });
+    } catch (error) {
     res.status(500).json({ message: 'Error updating coupon' });
   }
 });
 
 app.delete('/api/admin/coupons/:id', async (req, res) => {
-  try {
-    await Coupon.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Coupon deleted successfully' });
-  } catch (error) {
+    try {
+      const coupon = await Coupon.findById(req.params.id);
+      await Coupon.findByIdAndDelete(req.params.id);
+      await createAuditLog(req.user.userId, req.user.role, 'delete', 'coupon', req.params.id, coupon?.code || 'Unknown Coupon', {
+        before: { code: coupon?.code, discount: coupon?.discount },
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      res.status(200).json({ message: 'Coupon deleted successfully' });
+    } catch (error) {
     res.status(500).json({ message: 'Error deleting coupon' });
   }
 });
@@ -1619,16 +1783,21 @@ app.get('/api/admin/settings', async (req, res) => {
 });
 
 app.put('/api/admin/settings', async (req, res) => {
-  try {
-    const updates = pickUpdates(req.body, [
-      'siteName', 'siteEmail', 'sitePhone', 'currency', 'timezone',
-      'maintenanceMode', 'allowRegistration', 'requireApproval', 'taxRate',
-      'cancellationPolicy', 'refundPolicy'
-    ]);
-    updates.updatedAt = new Date();
-    let settings = await Settings.findOneAndUpdate({}, updates, { new: true, upsert: true, setDefaultsOnInsert: true });
-    res.status(200).json({ message: 'Settings updated successfully', settings });
-  } catch (error) {
+    try {
+      const updates = pickUpdates(req.body, [
+        'siteName', 'siteEmail', 'sitePhone', 'currency', 'timezone',
+        'maintenanceMode', 'allowRegistration', 'requireApproval', 'taxRate',
+        'cancellationPolicy', 'refundPolicy'
+      ]);
+      updates.updatedAt = new Date();
+      let settings = await Settings.findOneAndUpdate({}, updates, { new: true, upsert: true, setDefaultsOnInsert: true });
+      await createAuditLog(req.user.userId, req.user.role, 'settings_update', 'settings', null, 'Platform Settings', {
+        changes: Object.keys(updates),
+        ip: req.ip,
+        userAgent: req.get('User-Agent')
+      });
+      res.status(200).json({ message: 'Settings updated successfully', settings });
+    } catch (error) {
     res.status(500).json({ message: 'Error updating settings' });
   }
 });
@@ -1652,7 +1821,8 @@ app.get('/api/admin/analytics', async (req, res) => {
       cancelled: await Booking.countDocuments({ status: 'cancelled' })
     };
 
-    const topTours = await Package.find({}).sort({ bookings: -1, price: -1 }).limit(5).lean();
+    const topTours = await Package.find({}).sort({ price: -1 }).limit(10).lean();
+    const topToursBookings = await Booking.find({ paymentStatus: 'paid' }).select('package amount');
     const recentUsers = await User.find({}).sort({ createdAt: -1 }).limit(4).select('-password').lean();
     const recentBookings = await Booking.find({}).sort({ bookingDate: -1 }).limit(6).lean();
     const recentReviews = await Review.find({}).sort({ date: -1 }).limit(4).lean();
@@ -1679,6 +1849,19 @@ app.get('/api/admin/analytics', async (req, res) => {
     const rangeRevenue = (await Booking.find({ paymentStatus: 'paid', bookingDate: { $gte: since } }))
       .reduce((sum, b) => sum + b.amount, 0);
 
+    const notificationStats = {
+      total: await Notification.countDocuments(),
+      unread: await Notification.countDocuments({ read: false }),
+      byType: {
+        booking: await Notification.countDocuments({ type: 'booking' }),
+        payment: await Notification.countDocuments({ type: 'payment' }),
+        review: await Notification.countDocuments({ type: 'review' }),
+        system: await Notification.countDocuments({ type: 'system' }),
+        offer: await Notification.countDocuments({ type: 'offer' }),
+        availability: await Notification.countDocuments({ type: 'availability' })
+      }
+    };
+
     res.status(200).json({
       totalUsers,
       activeTours,
@@ -1687,11 +1870,16 @@ app.get('/api/admin/analytics', async (req, res) => {
       totalRevenue,
       avgRating: Number(avgRating.toFixed(1)),
       bookingStats,
-      topTours: topTours.map((pkg) => ({
-        name: pkg.name,
-        bookings: pkg.bookings || 0,
-        revenue: (pkg.bookings || 0) * (pkg.price || 0)
-      })),
+      topTours: topTours.map((pkg) => {
+          const pkgBookings = topToursBookings.filter(b => b.package === pkg.name);
+          const count = pkgBookings.length;
+          const revenue = pkgBookings.reduce((sum, b) => sum + (b.paidAmount || b.amount || 0), 0);
+          return {
+            name: pkg.name,
+            bookings: count,
+            revenue: revenue
+          };
+        }).sort((a, b) => b.bookings - a.bookings).slice(0, 5),
       recentActivity: [
         ...recentUsers.map((u) => ({ type: 'user', text: `New user: ${u.fullName} (${u.role})` })),
         ...recentBookings.map((b) => ({ type: 'booking', text: `Booking: ${b.package} by ${b.customer}` })),
@@ -1704,18 +1892,261 @@ app.get('/api/admin/analytics', async (req, res) => {
         customer: booking.customer,
         package: booking.package,
         dates: booking.dates,
+        amount: booking.amount,
         status: booking.status
       })),
-      rooms: roomSummary[0] || { total: 0, available: 0, booked: 0 },
-      range: {
+       rooms: roomSummary[0] || { total: 0, available: 0, booked: 0 },
+       notificationStats,
+       range: {
         bookings: rangeBookings,
         users: rangeUsers,
         revenue: rangeRevenue
       }
     });
+   } catch (error) {
+     console.error('Analytics error:', error);
+     res.status(500).json({ message: 'Error fetching analytics' });
+   }
+ });
+
+// Audit Log Routes
+app.get('/api/admin/audit-logs', async (req, res) => {
+  try {
+    const { entityType, action, limit, role } = req.query;
+    const filter = {};
+    if (entityType) filter.entityType = entityType;
+    if (action) filter.action = action;
+    if (role) filter.userRole = role;
+
+    const logs = await AuditLog.find(filter)
+      .populate('userId', 'fullName email role')
+      .sort({ timestamp: -1 })
+      .limit(Number(limit) || 100);
+
+    res.status(200).json({ logs });
   } catch (error) {
-    console.error('Analytics error:', error);
-    res.status(500).json({ message: 'Error fetching analytics' });
+    res.status(500).json({ message: 'Error fetching audit logs' });
+  }
+});
+
+// Enhanced admin report: role breakdown and revenue by category
+app.get('/api/admin/reports/summary', async (req, res) => {
+  try {
+    const since = rangeStart(req.query.range || 'month');
+
+    const usersByRole = {
+      admin: await User.countDocuments({ role: 'admin' }),
+      customer: await User.countDocuments({ role: 'customer' }),
+      tour_operator: await User.countDocuments({ role: 'tour_operator' }),
+      hotel_partner: await User.countDocuments({ role: 'hotel_partner' })
+    };
+
+    const roleGrowth = {
+      customer: { current: 0, previous: 0 }
+    };
+    const monthStart = new Date();
+    monthStart.setMonth(monthStart.getMonth() - 1, 1);
+    monthStart.setHours(0, 0, 0, 0);
+    const prevMonthStart = new Date(monthStart);
+    prevMonthStart.setMonth(prevMonthStart.getMonth() - 1);
+    roleGrowth.customer = {
+      current: await User.countDocuments({ role: 'customer', createdAt: { $gte: monthStart } }),
+      previous: await User.countDocuments({ role: 'customer', createdAt: { $gte: prevMonthStart, $lt: monthStart } })
+    };
+
+    const bookingsByStatus = {
+      confirmed: await Booking.countDocuments({ status: 'confirmed' }),
+      pending: await Booking.countDocuments({ status: 'pending' }),
+      cancelled: await Booking.countDocuments({ status: 'cancelled' }),
+      completed: await Booking.countDocuments({ status: 'completed' }),
+      rejected: await Booking.countDocuments({ status: 'rejected' })
+    };
+
+    const bookingsByPayment = {
+      paid: await Booking.countDocuments({ paymentStatus: 'paid' }),
+      pending: await Booking.countDocuments({ paymentStatus: 'pending' }),
+      partial: await Booking.countDocuments({ paymentStatus: 'partial' }),
+      refunded: await Booking.countDocuments({ paymentStatus: 'refunded' }),
+      failed: await Booking.countDocuments({ paymentStatus: 'failed' })
+    };
+
+    const packages = await Package.find({});
+    const revenueByCategory = {};
+    const revenueByDestination = {};
+    const paidBookings = await Booking.find({ paymentStatus: 'paid' });
+
+    packages.forEach((pkg) => {
+      const category = pkg.category || 'Uncategorized';
+      const destination = pkg.destination || 'Unknown';
+      const pkgBookings = paidBookings.filter(b => b.package === pkg.name);
+      const revenue = pkgBookings.reduce((sum, b) => sum + (b.paidAmount || b.amount || 0), 0);
+      revenueByCategory[category] = (revenueByCategory[category] || 0) + revenue;
+      revenueByDestination[destination] = (revenueByDestination[destination] || 0) + revenue;
+    });
+
+    const sortedCategories = Object.entries(revenueByCategory)
+      .map(([name, revenue]) => ({ name, revenue }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    const sortedDestinations = Object.entries(revenueByDestination)
+      .map(([name, revenue]) => ({ name, revenue }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+
+    const rangeBookings = await Booking.countDocuments({ bookingDate: { $gte: since } });
+    const rangeRevenue = paidBookings
+      .filter(b => new Date(b.bookingDate) >= since)
+      .reduce((sum, b) => sum + (b.paidAmount || b.amount || 0), 0);
+
+    res.status(200).json({
+      usersByRole,
+      roleGrowth,
+      bookingsByStatus,
+      bookingsByPayment,
+      revenueByCategory: sortedCategories,
+      revenueByDestination: sortedDestinations,
+      range: {
+        bookings: rangeBookings,
+        revenue: rangeRevenue,
+        since: since.toISOString()
+      }
+    });
+  } catch (error) {
+    console.error('Report summary error:', error);
+    res.status(500).json({ message: 'Error fetching report summary' });
+  }
+});
+
+// Admin Notification Management Routes
+app.get('/api/admin/notifications', async (req, res) => {
+  try {
+    const { type, userId, read, search, limit = 100 } = req.query;
+    const filter = {};
+    if (type) filter.type = type;
+    if (read !== undefined && read !== '') filter.read = read === 'true';
+    if (userId) filter.userId = userId;
+    if (search) filter.$or = [
+      { title: new RegExp(search, 'i') },
+      { message: new RegExp(search, 'i') }
+    ];
+    const notifications = await Notification.find(filter)
+      .populate('userId', 'fullName email role')
+      .sort({ createdAt: -1 })
+      .limit(Number(limit));
+    const stats = {
+      total: await Notification.countDocuments(),
+      unread: await Notification.countDocuments({ read: false }),
+      byType: {}
+    };
+    const types = ['booking', 'payment', 'review', 'system', 'offer', 'availability'];
+    for (const t of types) {
+      stats.byType[t] = await Notification.countDocuments({ type: t });
+    }
+    const usersCount = await Notification.aggregate([
+      { $group: { _id: null, uniqueUsers: { $addToSet: '$userId' } } }
+    ]);
+    stats.recipients = usersCount[0]?.uniqueUsers?.length || 0;
+    res.status(200).json({ notifications, stats });
+  } catch (error) {
+    console.error('Notification fetch error:', error);
+    res.status(500).json({ message: 'Error fetching notifications' });
+  }
+});
+
+app.post('/api/admin/notifications', async (req, res) => {
+  try {
+    const { title, message, type, userIds, role } = req.body;
+    if (!title || !message || !type) {
+      return res.status(400).json({ message: 'title, message, and type are required' });
+    }
+    let targetUserIds = [];
+    if (userIds && Array.isArray(userIds)) {
+      targetUserIds = userIds;
+    } else if (role) {
+      const users = await User.find(role === 'all' ? {} : { role }).select('_id');
+      targetUserIds = users.map(u => u._id);
+    } else {
+      return res.status(400).json({ message: 'Must specify userIds or role' });
+    }
+    const notifications = [];
+    for (const uid of targetUserIds) {
+      const notif = new Notification({
+        userId: uid,
+        type,
+        title,
+        message,
+        read: false
+      });
+      notifications.push(await notif.save());
+    }
+    await createAuditLog(
+      req.user.userId, req.user.role, 'create', 'notification', null, title,
+      { recipientCount: targetUserIds.length, type, role: role || 'specific' }
+    );
+    res.status(201).json({ message: 'Notifications sent', count: notifications.length });
+  } catch (error) {
+    console.error('Notification creation error:', error);
+    res.status(500).json({ message: 'Error sending notifications' });
+  }
+});
+
+app.delete('/api/admin/notifications', async (req, res) => {
+  try {
+    const { type, olderThan } = req.query;
+    const filter = {};
+    if (type) filter.type = type;
+    if (olderThan) {
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - Number(olderThan));
+      filter.createdAt = { $lt: cutoff };
+    }
+    const result = await Notification.deleteMany(filter);
+    await createAuditLog(
+      req.user.userId, req.user.role, 'delete', 'notification', null, 'Bulk delete',
+      { deletedCount: result.deletedCount, type, olderThan }
+    );
+    res.status(200).json({ message: 'Notifications deleted', deletedCount: result.deletedCount });
+  } catch (error) {
+    console.error('Notification delete error:', error);
+    res.status(500).json({ message: 'Error deleting notifications' });
+  }
+});
+
+app.put('/api/admin/notifications/:id/read', async (req, res) => {
+  try {
+    const notification = await Notification.findByIdAndUpdate(
+      req.params.id,
+      { read: true },
+      { new: true }
+    );
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+    await createAuditLog(
+      req.user.userId, req.user.role, 'update', 'notification', req.params.id,
+      notification.title || '', { action: 'mark_read' }
+    );
+    res.status(200).json({ message: 'Notification marked as read' });
+  } catch (error) {
+    console.error('Notification read error:', error);
+    res.status(500).json({ message: 'Error marking notification as read' });
+  }
+});
+
+app.delete('/api/admin/notifications/:id', async (req, res) => {
+  try {
+    const notification = await Notification.findByIdAndDelete(req.params.id);
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+    await createAuditLog(
+      req.user.userId, req.user.role, 'delete', 'notification', req.params.id,
+      notification.title || '', {}
+    );
+    res.status(200).json({ message: 'Notification deleted' });
+  } catch (error) {
+    console.error('Notification delete error:', error);
+    res.status(500).json({ message: 'Error deleting notification' });
   }
 });
 
@@ -1728,6 +2159,9 @@ app.get('/api/operator/profile', async (req, res) => {
     let profile = await OperatorProfile.findOne({ userId: req.user.userId });
     if (!profile) {
       profile = new OperatorProfile({ userId: req.user.userId });
+      await profile.save();
+    } else if (profile.verificationStatus === 'pending' && isOperatorProfileComplete(profile)) {
+      profile.verificationStatus = 'verified';
       await profile.save();
     }
     const user = await User.findById(req.user.userId).select('-password');
@@ -2681,6 +3115,16 @@ app.post('/api/customer/reviews', async (req, res) => {
       message: `Your review for ${review.package || 'package'} has been submitted successfully.`,
       relatedId: review._id
     }).save()
+    const pkg = await Package.findOne({ name: review.package }).lean();
+    if (pkg?.operatorId && pkg.operatorId.toString() !== req.user.userId) {
+      await new Notification({
+        userId: pkg.operatorId,
+        type: 'review',
+        title: 'New Review Received',
+        message: `${review.rating}⭐ review submitted for ${review.package || 'your package'}.`,
+        relatedId: review._id
+      }).save().catch(() => {});
+    }
     res.status(201).json({ message: 'Review submitted', review })
   } catch (error) {
     console.error('Submit review error:', error)
@@ -3160,6 +3604,13 @@ app.post('/api/hotel/bookings', async (req, res) => {
       updatedAt: new Date()
     });
     await newBooking.save();
+    await new Notification({
+      userId: req.user.userId,
+      type: 'booking',
+      title: 'New Hotel Booking Received',
+      message: `${newBooking.guestName || 'Guest'} booked ${newBooking.roomType || 'a room'} for ${newBooking.checkInDate || 'check-in'}.`,
+      relatedId: newBooking._id
+    }).save().catch(() => {});
     res.status(201).json({ message: 'Booking created successfully', booking: newBooking });
   } catch (error) {
     res.status(500).json({ message: 'Error creating booking' });
@@ -3179,6 +3630,15 @@ app.put('/api/hotel/bookings/:id', async (req, res) => {
       { new: true }
     );
     if (!booking) return res.status(404).json({ message: 'Booking not found' });
+    if (booking.status === 'confirmed' || booking.status === 'pending') {
+      await new Notification({
+        userId: req.user.userId,
+        type: 'booking',
+        title: 'Booking Updated',
+        message: `${booking.guestName || 'Guest'} booking status updated to '${booking.status}'.`,
+        relatedId: booking._id
+      }).save().catch(() => {});
+    }
     res.status(200).json({ message: 'Booking updated successfully', booking });
   } catch (error) {
     res.status(500).json({ message: 'Error updating booking' });

@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react'
-import { Calendar, Clock, Building, Star, Search, Eye, ArrowRight, Compass, Sparkles, CheckCircle, Info } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Clock, Building, Star, Search, Eye, ArrowRight, Compass, Sparkles, CheckCircle, Info } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import CustomerLayout from './CustomerLayout'
 import { api } from '../../api'
 import '../Dashboard.css'
-
-const parseDurationDays = (duration) => {
-  if (!duration) return 3
-  const match = String(duration).match(/(\d+)/)
-  return match ? Number(match[1]) : 3
-}
 
 const Itineraries = () => {
   const [searchTerm, setSearchTerm] = useState('')

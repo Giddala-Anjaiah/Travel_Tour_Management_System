@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Save, Camera, Edit3, X, CheckCircle, AlertCircle, Building, Mail, Phone, MapPin, Globe, Hash, FileText, Lock, Star, Clock } from 'lucide-react'
+import { Save, Camera, Edit3, X, CheckCircle, AlertCircle, Building, MapPin, Hash, FileText, Lock, Star } from 'lucide-react'
 import HotelLayout from './HotelLayout'
 import { api } from '../../api'
 import '../Dashboard.css'

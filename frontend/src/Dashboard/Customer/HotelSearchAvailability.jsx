@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { MapPin, Star, Search, Heart, Bed, Wifi, Coffee, Sparkles, Shield, CheckCircle, Utensils, Dumbbell, Waves, AlertCircle, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import CustomerLayout from './CustomerLayout'
-import { api, formatCurrency } from '../../api'
+import { api } from '../../api'
 import '../Dashboard.css'
 
 const HotelSearchAvailability = () => {
@@ -23,7 +23,7 @@ const HotelSearchAvailability = () => {
   useEffect(() => {
     let cancelled = false
     const stored = JSON.parse(localStorage.getItem('favorites_hotels') || '[]')
-    setFavorites(stored)
+    Promise.resolve().then(() => setFavorites(stored))
     const load = async () => {
       try {
         setLoading(true)
@@ -36,7 +36,7 @@ const HotelSearchAvailability = () => {
         if (!cancelled) setLoading(false)
       }
     }
-    load()
+    Promise.resolve().then(() => load())
     return () => { cancelled = true }
   }, [refreshKey])
 
@@ -45,9 +45,6 @@ const HotelSearchAvailability = () => {
   }, [favorites])
 
   const locations = [...new Set(hotels.map(h => h.location).filter(Boolean))]
-  const avgPrice = hotels.length > 0
-    ? hotels.reduce((s, h) => s + (h.minPrice || 0), 0) / hotels.filter(h => h.minPrice > 0).length || 0
-    : 0
 
   const filteredHotels = hotels.filter(hotel => {
     const q = searchTerm.toLowerCase()

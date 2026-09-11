@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { CreditCard, Search, Clock, CheckCircle, XCircle, AlertCircle, Download, Eye, Sparkles, Shield, Ticket, Calendar as CalendarIcon, Wallet, Zap, Users, MapPin } from 'lucide-react'
-import { Link, useSearchParams, useLocation } from 'react-router-dom'
+import { useSearchParams, useLocation } from 'react-router-dom'
 import CustomerLayout from './CustomerLayout'
 import { api, formatDate } from '../../api'
 import '../Dashboard.css'
@@ -17,7 +17,7 @@ const BookingsPayments = () => {
   const [showBookingModal, setShowBookingModal] = useState(false)
   const [creating, setCreating] = useState(false)
   const [packages, setPackages] = useState([])
-  const [hotels, setHotels] = useState([])
+  const [, setHotels] = useState([])
   const [bookingType, setBookingType] = useState('package')
   const [form, setForm] = useState({
     packageId: '',
@@ -59,37 +59,39 @@ const BookingsPayments = () => {
     const packageId = searchParams.get('packageId')
     const statePackage = location.state?.package
     const stateHotel = location.state?.hotel
-    if (statePackage) {
-      setBookingType('package')
-      setForm(prev => ({
-        ...prev,
-        packageId: statePackage._id || statePackage.id || '',
-        package: statePackage.name || '',
-        amount: Number(statePackage.price) || 0
-      }))
-      setShowBookingModal(true)
-    } else if (stateHotel) {
-      setBookingType('hotel')
-      setForm(prev => ({
-        ...prev,
-        hotelId: stateHotel._id || stateHotel.id || '',
-        hotelName: stateHotel.name || '',
-        amount: Number(stateHotel.minPrice || stateHotel.maxPrice) || 0
-      }))
-      setShowBookingModal(true)
-    } else if (packageId) {
-      const pkg = packages.find(p => (p._id || p.id) === packageId)
-      if (pkg) {
+    Promise.resolve().then(() => {
+      if (statePackage) {
         setBookingType('package')
         setForm(prev => ({
           ...prev,
-          packageId: pkg._id || pkg.id || '',
-          package: pkg.name || '',
-          amount: Number(pkg.price) || 0
+          packageId: statePackage._id || statePackage.id || '',
+          package: statePackage.name || '',
+          amount: Number(statePackage.price) || 0
         }))
         setShowBookingModal(true)
+      } else if (stateHotel) {
+        setBookingType('hotel')
+        setForm(prev => ({
+          ...prev,
+          hotelId: stateHotel._id || stateHotel.id || '',
+          hotelName: stateHotel.name || '',
+          amount: Number(stateHotel.minPrice || stateHotel.maxPrice) || 0
+        }))
+        setShowBookingModal(true)
+      } else if (packageId) {
+        const pkg = packages.find(p => (p._id || p.id) === packageId)
+        if (pkg) {
+          setBookingType('package')
+          setForm(prev => ({
+            ...prev,
+            packageId: pkg._id || pkg.id || '',
+            package: pkg.name || '',
+            amount: Number(pkg.price) || 0
+          }))
+          setShowBookingModal(true)
+        }
       }
-    }
+    })
   }, [searchParams, location.state, packages])
 
   const filteredBookings = bookings.filter(booking => {

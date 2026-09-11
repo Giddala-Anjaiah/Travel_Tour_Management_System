@@ -26,7 +26,9 @@ const HotelAvailabilityPage = () => {
     } catch (err) { setError(err.message) } finally { setLoading(false) }
   }
 
-  useEffect(() => { load() }, [refreshKey])
+  useEffect(() => {
+    Promise.resolve().then(() => load())
+  }, [refreshKey])
 
   useEffect(() => {
     const id = setInterval(() => setRefreshKey(k => k + 1), 25000)

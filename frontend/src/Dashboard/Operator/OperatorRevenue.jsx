@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import usePolling from '../../hooks/usePolling'
-import { TrendingUp, DollarSign, Calendar, Filter, ArrowUp, ArrowDown, Sparkles, Award, CheckCircle, AlertCircle, PieChart, BarChart } from 'lucide-react'
+import { TrendingUp, DollarSign, Sparkles, Award, CheckCircle, AlertCircle, PieChart, BarChart } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorRevenue = () => {
   const [revenueData, setRevenueData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [dateRange, setDateRange] = useState('month')
+  const [dateRange] = useState('month')
 
-  const fetchRevenue = async () => {
+  const fetchRevenue = useCallback(async () => {
     try {
       const token = localStorage.getItem('token')
       const response = await fetch(`http://localhost:5000/api/operator/revenue?range=${dateRange}`, {
@@ -25,25 +25,16 @@ const OperatorRevenue = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [dateRange])
 
   useEffect(() => {
-    fetchRevenue()
-  }, [dateRange])
+    Promise.resolve().then(() => fetchRevenue())
+  }, [dateRange, fetchRevenue])
 
   usePolling(fetchRevenue, 15000)
 
   const formatCurrency = (amount) => {
     return `₹${(amount / 1000).toFixed(0)}K`
-  }
-
-  const getChangeIndicator = (current, previous) => {
-    if (!previous) return null
-    const change = ((current - previous) / previous) * 100
-    return {
-      value: change.toFixed(1),
-      isPositive: change >= 0
-    }
   }
 
   return (

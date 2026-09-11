@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import usePolling from '../../hooks/usePolling'
-import { User, Mail, Phone, MapPin, Globe, Building, Save, Camera, Sparkles, Award, CheckCircle, Lock, Pencil as Edit, X, Shield, Clock, XCircle } from 'lucide-react'
+import { Save, Camera, CheckCircle, Pencil as Edit, X, Clock, XCircle } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorProfileContent = () => {
@@ -71,7 +71,7 @@ const OperatorProfileContent = () => {
   }
 
   useEffect(() => {
-    fetchProfile()
+    Promise.resolve().then(() => fetchProfile())
   }, [])
 
   usePolling(() => {

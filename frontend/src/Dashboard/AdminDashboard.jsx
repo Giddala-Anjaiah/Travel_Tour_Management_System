@@ -1,5 +1,4 @@
-import React from 'react'
-import { Shield, Users, MapPin, Building, BarChart3, Settings, LogOut, Calendar, DollarSign, FileText, Ticket, Bed, CreditCard, Star, PieChart, ClipboardList } from 'lucide-react'
+import { Shield, Users, MapPin, Building, BarChart3, Settings, LogOut, Calendar, DollarSign, FileText, Ticket, Bed, Star, PieChart } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Dashboard.css'
 

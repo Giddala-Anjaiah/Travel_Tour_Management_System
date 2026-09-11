@@ -38,7 +38,9 @@ const BookingManagement = () => {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    Promise.resolve().then(() => load())
+  }, [])
 
   const filteredBookings = bookings.filter((booking) => {
     const haystack = `${booking.customer} ${booking.email} ${booking.package}`.toLowerCase()

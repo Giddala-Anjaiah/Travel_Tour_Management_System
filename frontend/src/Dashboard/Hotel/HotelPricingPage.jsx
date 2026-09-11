@@ -28,7 +28,9 @@ const HotelPricingPage = () => {
     } catch (err) { setError(err.message) } finally { setLoading(false) }
   }
 
-  useEffect(() => { load() }, [refreshKey])
+  useEffect(() => {
+    Promise.resolve().then(() => load())
+  }, [refreshKey])
 
   const setPrice = (id, price) => setEdits(prev => ({ ...prev, [id]: { ...prev[id], price: Number(price) } }))
   const dirty = (r) => edits[r._id]?.price !== undefined && edits[r._id].price !== r.price

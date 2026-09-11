@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Star, TrendingUp, Bell, Reply, CheckCircle, XCircle, Trash2, Send, Search, X } from 'lucide-react'
 import HotelLayout from './HotelLayout'
 import { api, formatCurrency, formatDate } from '../../api'
@@ -20,7 +20,7 @@ const HotelReviewsRevenuePage = () => {
   const [range, setRange] = useState('month')
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true)
     try {
       setError('')
@@ -40,9 +40,11 @@ const HotelReviewsRevenuePage = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [activeTab, range])
 
-  useEffect(() => { load() }, [activeTab, range, refreshKey])
+  useEffect(() => {
+    Promise.resolve().then(() => load())
+  }, [load, refreshKey])
 
   useEffect(() => {
     const id = setInterval(() => setRefreshKey(k => k + 1), 30000)

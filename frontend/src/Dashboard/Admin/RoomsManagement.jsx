@@ -36,7 +36,9 @@ const RoomsManagement = () => {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    Promise.resolve().then(() => load())
+  }, [])
 
   const hotelNames = [...new Set([
     ...hotels.map((hotel) => hotel.name),

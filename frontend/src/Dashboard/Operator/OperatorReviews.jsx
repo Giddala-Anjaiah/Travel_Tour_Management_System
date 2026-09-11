@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import usePolling from '../../hooks/usePolling'
-import { Star, Search, Filter, MessageSquare, Send, CheckCircle, Clock, Sparkles, TrendingUp, Award } from 'lucide-react'
+import { Star, Search, MessageSquare, Send, Award } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorReviews = () => {
@@ -31,7 +31,7 @@ const OperatorReviews = () => {
   }
 
   useEffect(() => {
-    fetchReviews()
+    Promise.resolve().then(() => fetchReviews())
   }, [])
 
   usePolling(fetchReviews, 15000)

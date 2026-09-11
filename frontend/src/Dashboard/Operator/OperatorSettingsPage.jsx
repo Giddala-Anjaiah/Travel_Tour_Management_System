@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Save, Settings as SettingsIcon } from 'lucide-react'
+import { useState } from 'react'
+import { Save } from 'lucide-react'
 import OperatorLayout from './OperatorLayout'
 import '../Dashboard.css'
 

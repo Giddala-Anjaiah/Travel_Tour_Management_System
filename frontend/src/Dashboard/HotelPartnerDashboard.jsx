@@ -1,4 +1,3 @@
-import React from 'react'
 import { Building, Calendar, Users, DollarSign, Star, LogOut, Bed, Settings } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Dashboard.css'

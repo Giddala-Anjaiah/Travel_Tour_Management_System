@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { PieChart, Settings, Plus, Pencil as Edit, Trash2, Search, Download, Users, MapPin, Tag, Bell, Shield, Ticket } from 'lucide-react'
 import { api, downloadCsv, formValues, formatCurrency, formatDate } from '../../api'
@@ -7,10 +7,11 @@ import AdminLayout from './AdminLayout'
 const ReportsCouponsSettings = () => {
   const location = useLocation()
   const navigate = useNavigate()
-  const tabFromRoute = () => {
+  const tabFromRoute = useCallback(() => {
     if (location.pathname.includes('settings')) return 'settings'
     return new URLSearchParams(location.search).get('tab') || 'reports'
-  }
+  }, [location.pathname, location.search])
+
   const [activeTab, setActiveTab] = useState(tabFromRoute)
   const [coupons, setCoupons] = useState([])
   const [analytics, setAnalytics] = useState(null)
@@ -36,8 +37,8 @@ const ReportsCouponsSettings = () => {
   const [saveMessage, setSaveMessage] = useState('')
 
   useEffect(() => {
-    setActiveTab(tabFromRoute())
-  }, [location.pathname, location.search])
+    Promise.resolve().then(() => setActiveTab(tabFromRoute()))
+  }, [tabFromRoute])
 
   const openTab = (tab) => {
     if (tab === 'settings') navigate('/admin/settings')
@@ -74,7 +75,9 @@ const ReportsCouponsSettings = () => {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    Promise.resolve().then(() => load())
+  }, [])
 
   const filteredCoupons = coupons.filter((coupon) =>
     coupon.code.toLowerCase().includes(searchTerm.toLowerCase()) &&

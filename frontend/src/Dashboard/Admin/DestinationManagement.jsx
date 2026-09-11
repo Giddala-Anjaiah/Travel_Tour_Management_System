@@ -41,7 +41,9 @@ const DestinationManagement = () => {
     }
   }
 
-  useEffect(() => { fetchPackages() }, [])
+  useEffect(() => {
+    Promise.resolve().then(() => fetchPackages())
+  }, [])
 
   const filteredPackages = packages.filter((pkg) => {
     const matchesSearch = pkg.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

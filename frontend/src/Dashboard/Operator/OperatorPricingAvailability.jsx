@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import usePolling from '../../hooks/usePolling'
-import { DollarSign, Calendar, Plus, Search, Pencil as Edit, Trash2, Save, Users, TrendingUp, Sparkles, Clock, CheckCircle, X } from 'lucide-react'
+import { Calendar, Plus, Pencil as Edit, Trash2, Save, Users, CheckCircle } from 'lucide-react'
 import '../Dashboard.css'
 
 const emptyPricing = () => ({
@@ -31,7 +31,7 @@ const emptyAvailability = () => ({
 const OperatorPricingAvailability = () => {
   const [pricing, setPricing] = useState(null)
   const [availability, setAvailability] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [, setLoading] = useState(true)
   const [selectedPackageId, setSelectedPackageId] = useState('')
   const [packages, setPackages] = useState([])
   const [showPricingForm, setShowPricingForm] = useState(false)
@@ -57,7 +57,7 @@ const OperatorPricingAvailability = () => {
     }
   }
 
-  const fetchPricing = async () => {
+  const fetchPricing = useCallback(async () => {
     if (!selectedPackageId) return
     try {
       const token = localStorage.getItem('token')
@@ -75,9 +75,9 @@ const OperatorPricingAvailability = () => {
     } catch (error) {
       console.error('Error fetching pricing:', error)
     }
-  }
+  }, [selectedPackageId])
 
-  const fetchAvailability = async () => {
+  const fetchAvailability = useCallback(async () => {
     if (!selectedPackageId) return
     try {
       const token = localStorage.getItem('token')
@@ -97,18 +97,20 @@ const OperatorPricingAvailability = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [selectedPackageId])
 
   useEffect(() => {
-    fetchPackages()
+    Promise.resolve().then(() => fetchPackages())
   }, [])
 
   useEffect(() => {
-    if (selectedPackageId) {
-      fetchPricing()
-      fetchAvailability()
-    }
-  }, [selectedPackageId])
+    Promise.resolve().then(() => {
+      if (selectedPackageId) {
+        fetchPricing()
+        fetchAvailability()
+      }
+    })
+  }, [selectedPackageId, fetchPricing, fetchAvailability])
 
   usePolling(() => {
     if (selectedPackageId) {

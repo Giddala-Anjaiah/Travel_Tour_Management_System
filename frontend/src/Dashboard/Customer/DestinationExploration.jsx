@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { Search, Star, Heart, Calendar, Users, ArrowRight, Compass, Mountain, Leaf, Landmark, Waves, Sparkles, MapPin } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Search, Star, Heart, Calendar, Users, ArrowRight, Compass, Mountain, Leaf, Landmark, Waves, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import CustomerLayout from './CustomerLayout'
 import { api } from '../../api'

@@ -68,7 +68,7 @@ const OperatorDashboard = () => {
   }
 
   useEffect(() => {
-    load()
+    Promise.resolve().then(() => load())
   }, [])
 
   usePolling(load, 15000)

@@ -1,5 +1,4 @@
-import React from 'react'
-import { User, MapPin, Calendar, CreditCard, Heart, LogOut, Search, Building, Ticket, FileText, Bell, Star } from 'lucide-react'
+import { User, MapPin, Calendar, CreditCard, Heart, LogOut, Search, Building, Ticket, FileText } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import './Dashboard.css'
 

@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { FileText, Calendar, DollarSign, Search, CheckCircle, Clock, Eye, Printer, Sparkles, Shield, Receipt, ArrowRight, Download as DownloadIcon, Calendar as CalendarIcon, AlertCircle } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { DollarSign, Search, CheckCircle, Clock, Eye, Printer, Sparkles, Shield, Receipt, CalendarIcon, AlertCircle, Download } from 'lucide-react'
 import CustomerLayout from './CustomerLayout'
-import { api, formatCurrency, formatDate, downloadCsv } from '../../api'
+import { api, formatCurrency, formatDate } from '../../api'
 import jsPDF from 'jspdf'
 import '../Dashboard.css'
 
@@ -96,15 +95,6 @@ const InvoicesBookingHistory = () => {
     } else {
       URL.revokeObjectURL(url)
     }
-  }
-
-  const getDaysUntilDue = (dueDate) => {
-    if (!dueDate) return '—'
-    const due = new Date(dueDate)
-    const today = new Date()
-    const diffTime = due - today
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-    return diffDays
   }
 
   const totalBilled = invoices.reduce((sum, i) => sum + (i.amount || 0), 0)
@@ -250,7 +240,7 @@ const InvoicesBookingHistory = () => {
                   <Eye className="h-4 w-4" />
                 </button>
                 <button onClick={() => downloadInvoice(invoice)} className="icon-btn">
-                  <DownloadIcon className="h-4 w-4" />
+                  <Download className="h-4 w-4" />
                 </button>
                 <button onClick={() => printInvoice(invoice)} className="icon-btn">
                   <Printer className="h-4 w-4" />
@@ -309,7 +299,7 @@ const InvoicesBookingHistory = () => {
 
                 <div className="invoice-modal-actions">
                   <button onClick={() => downloadInvoice(selectedInvoice)} className="btn-secondary">
-                    <DownloadIcon className="h-4 w-4" /> Download PDF
+                    <Download className="h-4 w-4" /> Download PDF
                   </button>
                   <button onClick={() => printInvoice(selectedInvoice)} className="btn-secondary">
                     <Printer className="h-4 w-4" /> Print

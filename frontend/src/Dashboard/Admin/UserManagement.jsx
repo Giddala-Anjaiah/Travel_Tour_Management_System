@@ -36,7 +36,7 @@ const UserManagement = () => {
   }
 
   useEffect(() => {
-    fetchUsers()
+    Promise.resolve().then(() => fetchUsers())
   }, [])
 
   const filteredUsers = users.filter((user) => {

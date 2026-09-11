@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Heart, Star, Bell, Search, Trash2, Check, Calendar, Sparkles, Shield, Award, Clock, CheckCircle, AlertCircle, Star as StarIcon, Bell as BellIcon, MapPin as MapIcon, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import CustomerLayout from './CustomerLayout'

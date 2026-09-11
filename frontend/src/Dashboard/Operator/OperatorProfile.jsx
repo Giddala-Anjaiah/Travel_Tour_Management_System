@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from 'react'
-import { User, Mail, Phone, MapPin, Globe, Building, Save, Camera, Sparkles, Award, CheckCircle, Lock, Pencil as Edit, X, Shield, Clock, XCircle } from 'lucide-react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Save, Camera, CheckCircle, Pencil as Edit, X, Clock, XCircle } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorProfile = () => {
-  const navigate = useNavigate()
   const user = JSON.parse(localStorage.getItem('user') || '{}')
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -30,10 +28,6 @@ const OperatorProfile = () => {
   })
   const [profile, setProfile] = useState(null)
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem('token')
@@ -47,33 +41,17 @@ const OperatorProfile = () => {
         setProfile(data.profile)
         setProfileData(prev => ({
           ...prev,
-          companyName: data.profile.companyName || '',
-          logo: data.profile.logo || '',
-          businessAddress: data.profile.businessAddress || '',
-          city: data.profile.city || '',
-          state: data.profile.state || '',
-          country: data.profile.country || '',
-          postalCode: data.profile.postalCode || '',
-          website: data.profile.website || '',
-          description: data.profile.description || '',
-          businessRegNumber: data.profile.businessRegNumber || '',
-          alternatePhone: data.profile.alternatePhone || '',
-          licenseNumber: data.profile.licenseNumber || '',
-          taxId: data.profile.taxId || ''
-        }))
-      }
-      if (data.user) {
-        setProfileData(prev => ({
-          ...prev,
-          fullName: data.user.fullName || '',
-          email: data.user.email || '',
-          phone: data.user.phone || ''
+          ...data.profile
         }))
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
     }
   }
+
+   useEffect(() => {
+    Promise.resolve().then(() => fetchProfile())
+  }, [])
 
   const handleSave = async (e) => {
     e.preventDefault()

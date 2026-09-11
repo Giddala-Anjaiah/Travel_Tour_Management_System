@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import usePolling from '../../hooks/usePolling'
-import { Users, Search, Eye, ArrowRight, Sparkles, DollarSign, Calendar, TrendingUp } from 'lucide-react'
+import { Users, Search, Eye, DollarSign, Calendar } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorCustomers = () => {
@@ -29,7 +29,7 @@ const OperatorCustomers = () => {
   }
 
   useEffect(() => {
-    fetchCustomers()
+    Promise.resolve().then(() => fetchCustomers())
   }, [])
 
   usePolling(fetchCustomers, 15000)

@@ -37,7 +37,9 @@ const ItineraryManagement = () => {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    Promise.resolve().then(() => load())
+  }, [])
 
   const filteredItineraries = itineraries.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import usePolling from '../../hooks/usePolling'
-import { MapPin, Calendar, Clock, DollarSign, Plus, Search, Pencil as Edit, Trash2, Star, CheckCircle, XCircle, Sparkles, Award, Image as ImageIcon, X } from 'lucide-react'
+import { MapPin, Calendar, Clock, Plus, Search, Pencil as Edit, Trash2, Star, CheckCircle, XCircle, Sparkles, Award, Image as ImageIcon } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorPackages = () => {
@@ -53,7 +53,7 @@ const OperatorPackages = () => {
   }
 
   useEffect(() => {
-    fetchPackages()
+    Promise.resolve().then(() => fetchPackages())
   }, [])
 
   usePolling(fetchPackages, 15000)

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import {
   Bed, Calendar, Users, DollarSign, Star, TrendingUp, CheckCircle, AlertTriangle,
   RefreshCw, Bell, CreditCard, Activity, Home, ChevronRight, Sparkles, Eye,
@@ -17,9 +17,9 @@ const RANGES = [
 
 const AnimatedNumber = ({ value, prefix = '', suffix = '', decimals = 0 }) => {
   const [display, setDisplay] = useState(0)
+  const displayRef = useRef(display)
   useEffect(() => {
-    let raf
-    const start = display
+    const start = displayRef.current
     const end = Number(value) || 0
     const duration = 700
     const startTime = Date.now()
@@ -27,10 +27,12 @@ const AnimatedNumber = ({ value, prefix = '', suffix = '', decimals = 0 }) => {
       const elapsed = Date.now() - startTime
       const t = Math.min(elapsed / duration, 1)
       const eased = 1 - Math.pow(1 - t, 3)
-      setDisplay(start + (end - start) * eased)
-      if (t < 1) raf = requestAnimationFrame(tick)
+      const next = start + (end - start) * eased
+      setDisplay(next)
+      displayRef.current = next
+      if (t < 1) requestAnimationFrame(tick)
     }
-    raf = requestAnimationFrame(tick)
+    const raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [value])
   return <>{prefix}{display.toFixed(decimals)}{suffix}</>
@@ -120,7 +122,9 @@ const HotelDashboard = () => {
     }
   }, [range])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    Promise.resolve().then(() => load())
+  }, [load])
   useEffect(() => {
     if (!autoRefresh) return
     const id = setInterval(() => load(true), 30000)
