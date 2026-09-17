@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { BarChart3, Users, MapPin, Calendar, Ticket, PieChart, Settings, LogOut, Building, TrendingUp, Star, User } from 'lucide-react'
+=======
+import { BarChart3, Users, MapPin, Calendar, Ticket, FileText, PieChart, Settings, LogOut, Building, TrendingUp, Star, Bell, User } from 'lucide-react'
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
 import { Link, useNavigate } from 'react-router-dom'
 import '../Dashboard.css'
 
@@ -47,6 +51,7 @@ const OperatorLayout = ({ active, title, actions, children }) => {
             )
           })}
         </nav>
+<<<<<<< HEAD
         <div className="sidebar-footer">
           <button onClick={handleLogout} className="sidebar-logout-btn">
             <LogOut className="h-5 w-5" />
@@ -55,6 +60,15 @@ const OperatorLayout = ({ active, title, actions, children }) => {
         </div>
       </aside>
 
+=======
+      </aside>
+
+      <button onClick={handleLogout} className="logout-btn">
+        <LogOut className="h-5 w-5" />
+        <span>Logout</span>
+      </button>
+
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
       <main className="dashboard-main">
         <header className="dashboard-header">
           <h1>{title}</h1>
@@ -71,4 +85,8 @@ const OperatorLayout = ({ active, title, actions, children }) => {
   )
 }
 
+<<<<<<< HEAD
 export default OperatorLayout
+=======
+export default OperatorLayout
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639

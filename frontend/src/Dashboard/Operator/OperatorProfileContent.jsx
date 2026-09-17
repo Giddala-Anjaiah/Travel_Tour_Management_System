@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react'
-import usePolling from '../../hooks/usePolling'
-import { Save, Camera, CheckCircle, Pencil as Edit, X, Clock, XCircle } from 'lucide-react'
+import React, { useState, useEffect } from 'react'
+import { User, Mail, Phone, MapPin, Globe, Building, Save, Camera, Sparkles, Award, CheckCircle, Lock, Edit, X, Shield, Clock, XCircle } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorProfileContent = () => {
@@ -28,6 +27,10 @@ const OperatorProfileContent = () => {
     confirmPassword: ''
   })
   const [profile, setProfile] = useState(null)
+
+  useEffect(() => {
+    fetchProfile()
+  }, [])
 
   const fetchProfile = async () => {
     try {
@@ -69,16 +72,6 @@ const OperatorProfileContent = () => {
       console.error('Error fetching profile:', error)
     }
   }
-
-  useEffect(() => {
-    Promise.resolve().then(() => fetchProfile())
-  }, [])
-
-  usePolling(() => {
-    if (!isEditing) {
-      fetchProfile()
-    }
-  }, 15000)
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -149,29 +142,28 @@ const OperatorProfileContent = () => {
             </div>
           )}
         </div>
-      </div>
-
-      <form onSubmit={handleSave} className="profile-form enhanced">
-        <div className="profile-actions-inline">
+        <div className="profile-actions">
           {!isEditing ? (
-            <button type="button" onClick={() => setIsEditing(true)} className="btn-primary enhanced">
+            <button onClick={() => setIsEditing(true)} className="btn-primary enhanced">
               <Edit className="h-4 w-4" />
               Edit Profile
             </button>
           ) : (
             <div className="edit-actions">
-              <button type="button" onClick={() => setIsEditing(false)} className="btn-secondary">
+              <button onClick={() => setIsEditing(false)} className="btn-secondary">
                 <X className="h-4 w-4" />
                 Cancel
               </button>
-              <button type="submit" className="btn-primary enhanced" disabled={loading}>
+              <button onClick={handleSave} className="btn-primary enhanced" disabled={loading}>
                 <Save className="h-4 w-4" />
                 {loading ? 'Saving...' : 'Save Changes'}
               </button>
             </div>
           )}
         </div>
+      </div>
 
+      <form onSubmit={handleSave} className="profile-form enhanced">
         <div className="form-section">
           <h3>Personal Information</h3>
           <div className="form-grid">

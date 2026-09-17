@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState, useEffect } from 'react'
 import usePolling from '../../hooks/usePolling'
 import { Building, Ticket, Users, DollarSign, Star, PieChart, TrendingUp } from 'lucide-react'
@@ -72,6 +73,21 @@ const OperatorDashboard = () => {
   }, [])
 
   usePolling(load, 15000)
+=======
+import React, { useState, useEffect } from 'react'
+import { Building, Ticket, Users, DollarSign, Star, PieChart, TrendingUp } from 'lucide-react'
+import OperatorLayout from './OperatorLayout'
+
+const OperatorDashboard = () => {
+  const [stats, setStats] = useState({
+    totalPackages: 12,
+    totalBookings: 156,
+    totalCustomers: 89,
+    revenue: '25L',
+    avgRating: 4.5,
+    pending: 23
+  })
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
 
   return (
     <OperatorLayout active="dashboard" title="Dashboard Analytics">
@@ -81,7 +97,11 @@ const OperatorDashboard = () => {
           <div className="stat-content">
             <h3>Total Packages</h3>
             <p className="stat-number">{stats.totalPackages}</p>
+<<<<<<< HEAD
             <span className="stat-change positive">{stats.activePackages} Active</span>
+=======
+            <span className="stat-change positive">8 Active</span>
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
           </div>
         </div>
         <div className="stat-card">
@@ -89,7 +109,11 @@ const OperatorDashboard = () => {
           <div className="stat-content">
             <h3>Total Bookings</h3>
             <p className="stat-number">{stats.totalBookings}</p>
+<<<<<<< HEAD
             <span className="stat-change positive">All time</span>
+=======
+            <span className="stat-change positive">+23 this month</span>
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
           </div>
         </div>
         <div className="stat-card">
@@ -97,23 +121,37 @@ const OperatorDashboard = () => {
           <div className="stat-content">
             <h3>Total Customers</h3>
             <p className="stat-number">{stats.totalCustomers}</p>
+<<<<<<< HEAD
             <span className="stat-change positive">Unique customers</span>
+=======
+            <span className="stat-change positive">+15 new this month</span>
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
           </div>
         </div>
         <div className="stat-card">
           <DollarSign className="stat-icon" />
           <div className="stat-content">
             <h3>Revenue</h3>
+<<<<<<< HEAD
             <p className="stat-number">{formatCurrency(stats.revenue)}</p>
             <span className="stat-change positive">From paid bookings</span>
+=======
+            <p className="stat-number">₹{stats.revenue}</p>
+            <span className="stat-change positive">+18% this month</span>
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
           </div>
         </div>
         <div className="stat-card">
           <Star className="stat-icon" />
           <div className="stat-content">
             <h3>Avg Rating</h3>
+<<<<<<< HEAD
             <p className="stat-number">{stats.avgRating || '—'}</p>
             <span className="stat-change positive">Approved reviews</span>
+=======
+            <p className="stat-number">{stats.avgRating}</p>
+            <span className="stat-change positive">+0.3 this month</span>
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
           </div>
         </div>
         <div className="stat-card">
@@ -121,7 +159,11 @@ const OperatorDashboard = () => {
           <div className="stat-content">
             <h3>Pending</h3>
             <p className="stat-number">{stats.pending}</p>
+<<<<<<< HEAD
             <span className="stat-change neutral">Awaiting confirmation</span>
+=======
+            <span className="stat-change neutral">Awaiting approval</span>
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
           </div>
         </div>
       </div>
@@ -133,7 +175,11 @@ const OperatorDashboard = () => {
             <div className="chart-placeholder">
               <TrendingUp className="chart-icon" />
               <p>Revenue Analytics Chart</p>
+<<<<<<< HEAD
               <small>Total revenue: {formatCurrency(stats.revenue)}</small>
+=======
+              <small>Monthly revenue breakdown by package</small>
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
             </div>
           </div>
         </div>
@@ -141,20 +187,42 @@ const OperatorDashboard = () => {
         <div className="section-card">
           <h3>Recent Activities</h3>
           <ul className="activity-list">
+<<<<<<< HEAD
             {activities.length === 0 && <li>No recent activity yet.</li>}
             {activities.map((a, i) => (
               <li key={i}><Ticket className="activity-icon" /> {a}</li>
             ))}
+=======
+            <li>
+              <Ticket className="activity-icon" /> New booking: Goa Beach Paradise by John Doe
+            </li>
+            <li>
+              <Star className="activity-icon" /> New review: 5 stars for Kerala Backwaters Tour
+            </li>
+            <li>
+              <Users className="activity-icon" /> Customer inquiry: North India Package details
+            </li>
+            <li>
+              <TrendingUp className="activity-icon" /> Revenue milestone: Reached ₹25L this month
+            </li>
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
           </ul>
         </div>
 
         <div className="section-card">
           <h3>Top Performing Packages</h3>
           <ul className="activity-list">
+<<<<<<< HEAD
             {topPackages.length === 0 && <li>No booking data yet.</li>}
             {topPackages.map((p, i) => (
               <li key={i}>📦 {p.name} - {p.bookings} bookings</li>
             ))}
+=======
+            <li>🌴 Goa Beach Paradise - 45 bookings</li>
+            <li>🏔️ Himalayan Adventure - 38 bookings</li>
+            <li>🌊 Kerala Backwaters Tour - 35 bookings</li>
+            <li>🏛️ Taj Mahal & Delhi Tour - 28 bookings</li>
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639
           </ul>
         </div>
       </div>
@@ -162,4 +230,8 @@ const OperatorDashboard = () => {
   )
 }
 
+<<<<<<< HEAD
 export default OperatorDashboard
+=======
+export default OperatorDashboard
+>>>>>>> 3cf0d69510b5ba4025d05bd75ea1c397ae427639

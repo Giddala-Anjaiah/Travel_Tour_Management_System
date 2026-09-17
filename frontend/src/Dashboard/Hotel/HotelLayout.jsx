@@ -1,4 +1,4 @@
-import { BarChart3, Building, Bed, Calendar, Users, DollarSign, Star, Settings, LogOut, CheckCircle } from 'lucide-react'
+import { BarChart3, Building, Bed, Calendar, Users, DollarSign, Star, Settings, LogOut, CheckCircle, Bell } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../Dashboard.css'
 
