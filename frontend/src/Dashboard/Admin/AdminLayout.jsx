@@ -1,4 +1,4 @@
-import { BarChart3, Users, MapPin, Calendar, Ticket, FileText, PieChart, Settings, Shield, LogOut, Bed } from 'lucide-react'
+import { BarChart3, Users, MapPin, Calendar, Ticket, FileText, PieChart, Settings, Shield, LogOut, Bed, Bell } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../Dashboard.css'
 
@@ -10,8 +10,9 @@ const navItems = [
   { to: '/admin/rooms', match: 'rooms', label: 'Rooms & Availability', icon: Bed },
   { to: '/admin/bookings', match: 'bookings', label: 'Bookings & Payments', icon: Ticket },
   { to: '/admin/invoices', match: 'invoices', label: 'Invoices & Reviews', icon: FileText },
-  { to: '/admin/reports', match: 'reports', label: 'Reports & Coupons', icon: PieChart },
-  { to: '/admin/settings', match: 'settings', label: 'Settings', icon: Settings }
+  { to: '/admin/notifications', match: 'notifications', label: 'Notifications', icon: Bell },
+  { to: '/admin/reports', match: 'reports', label: 'Reports', icon: PieChart },
+  { to: '/admin/settings', match: 'settings', label: 'Administration', icon: Settings }
 ]
 
 const AdminLayout = ({ active, title, actions, children }) => {

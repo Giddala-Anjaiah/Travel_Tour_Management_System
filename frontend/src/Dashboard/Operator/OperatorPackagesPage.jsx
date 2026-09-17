@@ -1,4 +1,3 @@
-import React from 'react'
 import OperatorLayout from './OperatorLayout'
 import OperatorPackages from './OperatorPackages'
 

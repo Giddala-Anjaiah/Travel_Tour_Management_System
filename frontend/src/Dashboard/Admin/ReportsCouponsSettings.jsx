@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { PieChart, Settings, Plus, Pencil as Edit, Trash2, Search, Download, Users, MapPin, Tag, Bell, Shield, Ticket } from 'lucide-react'
 import { api, downloadCsv, formValues, formatCurrency, formatDate } from '../../api'
 import AdminLayout from './AdminLayout'
+import ChartBar from './ChartBar'
 
 const ReportsCouponsSettings = () => {
   const location = useLocation()
@@ -15,6 +16,7 @@ const ReportsCouponsSettings = () => {
   const [activeTab, setActiveTab] = useState(tabFromRoute)
   const [coupons, setCoupons] = useState([])
   const [analytics, setAnalytics] = useState(null)
+  const [reportSummary, setReportSummary] = useState(null)
   const [settings, setSettings] = useState({
     siteName: 'Travel Tour Management System',
     siteEmail: '',
@@ -49,9 +51,10 @@ const ReportsCouponsSettings = () => {
   const load = async () => {
     try {
       setError('')
-      const [couponData, analyticsData, settingsData] = await Promise.all([
+      const [couponData, analyticsData, summaryData, settingsData] = await Promise.all([
         api('/admin/coupons'),
         api('/admin/analytics?range=month'),
+        api('/admin/reports/summary?range=month'),
         api('/admin/settings')
       ])
       setCoupons((couponData.coupons || []).map((coupon) => ({
@@ -67,6 +70,7 @@ const ReportsCouponsSettings = () => {
         maxUsage: coupon.maxUsage
       })))
       setAnalytics(analyticsData)
+      setReportSummary(summaryData)
       if (settingsData.settings) {
         setSettings((current) => ({ ...current, ...settingsData.settings }))
       }
@@ -215,6 +219,49 @@ const ReportsCouponsSettings = () => {
               <p>{analytics?.activeTours || 0} active tours</p>
               <small>{(analytics?.topTours || []).map((tour) => tour.name).join(', ') || 'Add packages to see rankings'}</small>
             </div>
+          </div>
+          <div className="section-card full-width">
+            <h3>Revenue by Package</h3>
+            <ChartBar
+              type="pie"
+              data={Object.fromEntries((analytics?.topTours || []).map((tour) => [tour.name, tour.revenue || 0]))}
+              title="Revenue share"
+            />
+          </div>
+          <div className="section-card full-width">
+            <h3>Monthly Revenue Trend</h3>
+            <ChartBar
+              type="line"
+              data={(analytics?.monthlyRevenue || []).map((value, index) => {
+                const date = new Date()
+                date.setMonth(date.getMonth() - ((analytics.monthlyRevenue?.length || 1) - 1 - index))
+                return { label: date.toLocaleString('en-US', { month: 'short' }), value, format: 'currency' }
+              })}
+              height={240}
+              title="Revenue over the last 6 months"
+            />
+          </div>
+          <div className="section-card">
+            <h3>Booking Status Breakdown</h3>
+            <ChartBar type="pie" data={analytics?.bookingStats || {}} />
+          </div>
+          <div className="section-card">
+            <h3>Booking Payment Status</h3>
+            <ChartBar type="pie" data={reportSummary?.bookingsByPayment || {}} />
+          </div>
+          <div className="section-card">
+            <h3>Revenue by Category</h3>
+            <ChartBar
+              type="bar"
+              data={(reportSummary?.revenueByCategory || []).map(item => ({ label: item.name, value: item.revenue, format: 'currency' }))}
+            />
+          </div>
+          <div className="section-card">
+            <h3>Top Destinations by Revenue</h3>
+            <ChartBar
+              type="bar"
+              data={(reportSummary?.revenueByDestination || []).map(item => ({ label: item.name, value: item.revenue, format: 'currency' }))}
+            />
           </div>
         </div>
       )}

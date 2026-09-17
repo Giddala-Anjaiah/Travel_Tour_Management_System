@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { Users, Search, Eye, ArrowRight, Sparkles, DollarSign, Calendar, TrendingUp } from 'lucide-react'
+import { API_BASE } from '../../api'
+import { useState, useEffect } from 'react'
+import usePolling from '../../hooks/usePolling'
+import { Users, Search, Eye, DollarSign, Calendar } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorCustomers = () => {
@@ -8,14 +10,10 @@ const OperatorCustomers = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState(null)
 
-  useEffect(() => {
-    fetchCustomers()
-  }, [])
-
   const fetchCustomers = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/operator/customers', {
+      const response = await fetch(API_BASE + '/operator/customers', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -30,6 +28,12 @@ const OperatorCustomers = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    Promise.resolve().then(() => fetchCustomers())
+  }, [])
+
+  usePolling(fetchCustomers, 15000)
 
   const filteredCustomers = customers.filter(customer =>
     customer.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -59,32 +63,37 @@ const OperatorCustomers = () => {
               <p>Customers will appear here when they book your packages</p>
             </div>
           ) : (
-            <div className="customers-grid enhanced">
-              {filteredCustomers.map(customer => (
-                <div key={customer._id} className="customer-card enhanced">
-                  <div className="customer-avatar">
-                    {customer.fullName?.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="customer-info">
-                    <h3>{customer.fullName}</h3>
-                    <p>{customer.email}</p>
-                    <div className="customer-stats">
-                      <div className="stat-item">
-                        <Calendar className="h-4 w-4" />
-                        <span>{customer.totalBookings || 0} bookings</span>
-                      </div>
-                      <div className="stat-item">
-                        <DollarSign className="h-4 w-4" />
-                        <span>₹{(customer.totalSpent || 0).toLocaleString()}</span>
+              <div className="customers-grid enhanced">
+                {filteredCustomers.map(customer => (
+                  <div key={customer._id} className="customer-card enhanced">
+                    <div className="customer-avatar">
+                      {customer.fullName?.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="customer-info">
+                      <h3>{customer.fullName}</h3>
+                      <p>{customer.email}</p>
+                      {customer.phone && (
+                        <p style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.75rem' }}>
+                          <span style={{ fontSize: '0.875rem', color: '#64748b' }}>📞 {customer.phone}</span>
+                        </p>
+                      )}
+                      <div className="customer-stats">
+                        <div className="stat-item">
+                          <Calendar className="h-4 w-4" />
+                          <span>{customer.totalBookings || 0} bookings</span>
+                        </div>
+                        <div className="stat-item">
+                          <DollarSign className="h-4 w-4" />
+                          <span>₹{(customer.totalSpent || 0).toLocaleString()}</span>
+                        </div>
                       </div>
                     </div>
+                    <button onClick={() => setSelectedCustomer(customer)} className="icon-btn">
+                      <Eye className="h-4 w-4" />
+                    </button>
                   </div>
-                  <button onClick={() => setSelectedCustomer(customer)} className="icon-btn">
-                    <Eye className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
           )}
       {selectedCustomer && (
         <div className="modal-overlay">

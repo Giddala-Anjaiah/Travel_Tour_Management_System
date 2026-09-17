@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import OperatorLayout from './OperatorLayout'
 import OperatorRevenue from './OperatorRevenue'
 import OperatorNotifications from './OperatorNotifications'

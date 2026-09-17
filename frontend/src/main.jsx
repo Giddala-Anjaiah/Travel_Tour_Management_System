@@ -3,10 +3,12 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import { ThemeProvider } from './context/ThemeProvider'
+import ThemeToggle from './components/ThemeToggle'
 import Login from './Login.jsx'
 import Signup from './Signup.jsx'
 import ProtectedRoute from './ProtectedRoute.jsx'
-import CustomerDashboard from './Dashboard/CustomerDashboard.jsx'
+import CustomerDashboard from './Dashboard/Customer/CustomerDashboard.jsx'
 import OperatorDashboard from './Dashboard/Operator/OperatorDashboard.jsx'
 import OperatorProfilePage from './Dashboard/Operator/OperatorProfilePage.jsx'
 import OperatorPackagesPage from './Dashboard/Operator/OperatorPackagesPage.jsx'
@@ -34,6 +36,7 @@ import ItineraryManagement from './Dashboard/Admin/ItineraryManagement.jsx'
 import RoomsManagement from './Dashboard/Admin/RoomsManagement.jsx'
 import BookingManagement from './Dashboard/Admin/BookingManagement.jsx'
 import InvoicesReviews from './Dashboard/Admin/InvoicesReviews.jsx'
+import NotificationsManagement from './Dashboard/Admin/NotificationsManagement.jsx'
 import ReportsCouponsSettings from './Dashboard/Admin/ReportsCouponsSettings.jsx'
 import ProfileManagement from './Dashboard/Customer/ProfileManagement.jsx'
 import DestinationExploration from './Dashboard/Customer/DestinationExploration.jsx'
@@ -47,7 +50,9 @@ import WishlistReviewsNotifications from './Dashboard/Customer/WishlistReviewsNo
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
-      <Routes>
+      <ThemeProvider>
+        <ThemeToggle className="theme-toggle-fixed" />
+        <Routes>
         <Route path="/" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -109,6 +114,14 @@ createRoot(document.getElementById('root')).render(
             </ProtectedRoute>
           } 
         />
+        <Route
+          path="/admin/notifications"
+          element={
+            <ProtectedRoute allowedRoles={['admin']}>
+              <NotificationsManagement />
+            </ProtectedRoute>
+          }
+        />
         <Route 
           path="/admin/reports" 
           element={
@@ -127,13 +140,21 @@ createRoot(document.getElementById('root')).render(
         />
         
         {/* Customer Routes */}
-        <Route 
-          path="/customer/dashboard" 
+        <Route
+          path="/customer/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={['customer']}>
+              <CustomerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/customer/destinations"
           element={
             <ProtectedRoute allowedRoles={['customer']}>
               <DestinationExploration />
             </ProtectedRoute>
-          } 
+          }
         />
         <Route 
           path="/customer/packages" 
@@ -364,6 +385,7 @@ createRoot(document.getElementById('root')).render(
           } 
         />
       </Routes>
+      </ThemeProvider>
     </BrowserRouter>
   </StrictMode>,
 )

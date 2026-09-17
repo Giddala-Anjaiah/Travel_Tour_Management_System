@@ -4,7 +4,7 @@ import { formatCurrency } from '../../api'
 const ChartBar = ({ type, data, title, height = 160 }) => {
   const isEmpty = Array.isArray(data)
     ? data.length === 0
-    : data === null || data === undefined || Object.keys(data).length === 0;
+    : data === null || data === undefined || Object.keys(data).length === 0
   if (!data || isEmpty) {
     return (
       <div className="chart-placeholder-simple">
@@ -160,11 +160,14 @@ function renderLineChart(data, title, height) {
   const innerHeight = chartHeight - padding.top - padding.bottom
   const pointGap = innerWidth / (data.length - 1 || 1)
 
-  const points = data.map((d, i) => ({
-    x: padding.left + i * pointGap,
-    y: padding.top + innerHeight - ((typeof d === 'number' ? d : (d.value ?? d)) / maxValue) * innerHeight,
-    value: d.value
-  }))
+  const points = data.map((d, i) => {
+    const value = typeof d === 'number' ? d : (d.value ?? d)
+    return {
+      x: padding.left + i * pointGap,
+      y: padding.top + innerHeight - (value / maxValue) * innerHeight,
+      value
+    }
+  })
 
   return (
     <div className="chart-wrapper">
@@ -182,7 +185,6 @@ function renderLineChart(data, title, height) {
           strokeWidth="2.5"
           strokeLinecap="round"
           strokeLinejoin="round"
-          strokeDasharray="0 1000"
           className="line-path"
         />
         {points.map((p, i) => (

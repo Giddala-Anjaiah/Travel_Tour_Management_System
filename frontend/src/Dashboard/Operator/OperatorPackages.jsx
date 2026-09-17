@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { MapPin, Calendar, DollarSign, Plus, Search, Edit, Trash2, Star, CheckCircle, XCircle, Sparkles, Award, Image as ImageIcon, X } from 'lucide-react'
+import { API_BASE } from '../../api'
+import { useState, useEffect } from 'react'
+import usePolling from '../../hooks/usePolling'
+import { MapPin, Calendar, Clock, Plus, Search, Pencil as Edit, Trash2, Star, CheckCircle, XCircle, Sparkles, Award, Image as ImageIcon } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorPackages = () => {
@@ -32,14 +34,10 @@ const OperatorPackages = () => {
     images: []
   })
 
-  useEffect(() => {
-    fetchPackages()
-  }, [])
-
   const fetchPackages = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/operator/packages', {
+      const response = await fetch(API_BASE + '/operator/packages', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -54,6 +52,12 @@ const OperatorPackages = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    Promise.resolve().then(() => fetchPackages())
+  }, [])
+
+  usePolling(fetchPackages, 15000)
 
   const handleCreate = () => {
     setEditingPackage(null)
@@ -113,7 +117,7 @@ const OperatorPackages = () => {
     if (window.confirm('Are you sure you want to delete this package?')) {
       try {
         const token = localStorage.getItem('token')
-        const response = await fetch(`http://localhost:5000/api/operator/packages/${id}`, {
+        const response = await fetch(`${API_BASE}/operator/packages/${id}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -147,8 +151,8 @@ const OperatorPackages = () => {
       }
 
       const url = editingPackage 
-        ? `http://localhost:5000/api/operator/packages/${editingPackage._id}`
-        : 'http://localhost:5000/api/operator/packages'
+        ? `${API_BASE}/operator/packages/${editingPackage._id}`
+        : API_BASE + '/operator/packages'
       
       const method = editingPackage ? 'PUT' : 'POST'
 

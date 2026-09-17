@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { Star, Search, Filter, MessageSquare, Send, CheckCircle, Clock, Sparkles, TrendingUp, Award } from 'lucide-react'
+import { API_BASE } from '../../api'
+import { useState, useEffect } from 'react'
+import usePolling from '../../hooks/usePolling'
+import { Star, Search, MessageSquare, Send, Award } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorReviews = () => {
@@ -10,14 +12,10 @@ const OperatorReviews = () => {
   const [selectedReview, setSelectedReview] = useState(null)
   const [responseText, setResponseText] = useState('')
 
-  useEffect(() => {
-    fetchReviews()
-  }, [])
-
   const fetchReviews = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/operator/reviews', {
+      const response = await fetch(API_BASE + '/operator/reviews', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -33,6 +31,12 @@ const OperatorReviews = () => {
     }
   }
 
+  useEffect(() => {
+    Promise.resolve().then(() => fetchReviews())
+  }, [])
+
+  usePolling(fetchReviews, 15000)
+
   const handleResponse = async (reviewId) => {
     if (!responseText.trim()) {
       alert('Please enter a response')
@@ -40,7 +44,7 @@ const OperatorReviews = () => {
     }
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/operator/reviews/${reviewId}/respond`, {
+      const response = await fetch(`${API_BASE}/operator/reviews/${reviewId}/respond`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

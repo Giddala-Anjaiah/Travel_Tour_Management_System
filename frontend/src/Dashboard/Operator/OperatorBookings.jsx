@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { Clock, Search, Filter, CheckCircle, XCircle, AlertCircle, Calendar, Users, DollarSign, Eye, ArrowRight, Sparkles, TrendingUp } from 'lucide-react'
+import { API_BASE } from '../../api'
+import { useState, useEffect } from 'react'
+import usePolling from '../../hooks/usePolling'
+import { Clock, Search, CheckCircle, XCircle, AlertCircle, Calendar, Users, DollarSign, Eye } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorBookings = () => {
@@ -8,16 +10,11 @@ const OperatorBookings = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [selectedBooking, setSelectedBooking] = useState(null)
-  const [showModal, setShowModal] = useState(false)
-
-  useEffect(() => {
-    fetchBookings()
-  }, [])
 
   const fetchBookings = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/operator/bookings', {
+      const response = await fetch(API_BASE + '/operator/bookings', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -33,10 +30,16 @@ const OperatorBookings = () => {
     }
   }
 
+  useEffect(() => {
+    Promise.resolve().then(() => fetchBookings())
+  }, [])
+
+  usePolling(fetchBookings, 15000)
+
   const handleStatusUpdate = async (bookingId, newStatus) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/operator/bookings/${bookingId}`, {
+      const response = await fetch(`${API_BASE}/operator/bookings/${bookingId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

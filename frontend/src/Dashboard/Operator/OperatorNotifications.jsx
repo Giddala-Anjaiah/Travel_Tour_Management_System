@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { Bell, Search, Check, Trash2, Clock, DollarSign, Star, Settings, AlertCircle, Sparkles, TrendingUp, Award } from 'lucide-react'
+import { API_BASE } from '../../api'
+import { useState, useEffect } from 'react'
+import usePolling from '../../hooks/usePolling'
+import { Bell, Search, Check, Trash2, Clock, DollarSign, Star, Settings, AlertCircle, Sparkles } from 'lucide-react'
 import '../Dashboard.css'
 
 const OperatorNotifications = () => {
@@ -9,14 +11,10 @@ const OperatorNotifications = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterType, setFilterType] = useState('all')
 
-  useEffect(() => {
-    fetchNotifications()
-  }, [])
-
   const fetchNotifications = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/operator/notifications', {
+      const response = await fetch(API_BASE + '/operator/notifications', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -33,10 +31,16 @@ const OperatorNotifications = () => {
     }
   }
 
+  useEffect(() => {
+    Promise.resolve().then(() => fetchNotifications())
+  }, [])
+
+  usePolling(fetchNotifications, 15000)
+
   const handleMarkAsRead = async (id) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/operator/notifications/${id}/read`, {
+      const response = await fetch(`${API_BASE}/operator/notifications/${id}/read`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -53,28 +57,10 @@ const OperatorNotifications = () => {
     }
   }
 
-  const handleMarkAllAsRead = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/operator/notifications/read-all', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-      if (response.ok) {
-        setNotifications(notifications.map(n => ({ ...n, read: true })))
-        setUnreadCount(0)
-      }
-    } catch (error) {
-      console.error('Error marking all as read:', error)
-    }
-  }
-
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch(`http://localhost:5000/api/operator/notifications/${id}`, {
+      const response = await fetch(`${API_BASE}/operator/notifications/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

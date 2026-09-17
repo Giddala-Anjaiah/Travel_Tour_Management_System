@@ -3,6 +3,7 @@ import { BarChart3, Users, MapPin, Building, Ticket, DollarSign, Star, TrendingU
 import { Link } from 'react-router-dom'
 import { api, downloadCsv, formatCurrency } from '../../api'
 import AdminLayout from './AdminLayout'
+import ChartBar from './ChartBar'
 
 const DashboardAnalytics = () => {
   const [analytics, setAnalytics] = useState(null)
@@ -122,56 +123,38 @@ const DashboardAnalytics = () => {
           <div className="dashboard-sections">
             <div className="section-card full-width">
               <h3>Revenue Trend (last 6 months)</h3>
-              <div className="revenue-chart">
-                <div className="chart-placeholder">
-                  <BarChart3 className="chart-icon" />
-                  <p>{(analytics.monthlyRevenue || []).map(formatCurrency).join(' → ') || 'No paid bookings yet'}</p>
-                  <small>Current total: {formatCurrency(analytics.totalRevenue)}</small>
-                </div>
-              </div>
+              <ChartBar
+                type="line"
+                data={(analytics.monthlyRevenue || []).map((value, index) => {
+                  const date = new Date()
+                  date.setMonth(date.getMonth() - ((analytics.monthlyRevenue?.length || 1) - 1 - index))
+                  return { label: date.toLocaleString('en-US', { month: 'short' }), value, format: 'currency' }
+                })}
+                height={240}
+              />
             </div>
 
             <div className="section-card">
               <h3>User Growth</h3>
-              <div className="growth-chart">
-                <div className="chart-placeholder">
-                  <Users className="chart-icon" />
-                  <p>{(analytics.userGrowth || []).join(' → ') || '0'}</p>
-                  <small>Total users: {analytics.totalUsers.toLocaleString()}</small>
-                </div>
-              </div>
+              <ChartBar
+                type="line"
+                data={(analytics.userGrowth || []).map((value, index) => {
+                  const date = new Date()
+                  date.setMonth(date.getMonth() - ((analytics.userGrowth?.length || 1) - 1 - index))
+                  return { label: date.toLocaleString('en-US', { month: 'short' }), value }
+                })}
+                height={180}
+              />
             </div>
 
             <div className="section-card">
               <h3>Booking Status</h3>
-              <div className="booking-stats">
-                <div className="booking-stat-item confirmed">
-                  <span className="stat-label">Confirmed</span>
-                  <span className="stat-value">{analytics.bookingStats?.confirmed || 0}</span>
-                </div>
-                <div className="booking-stat-item pending">
-                  <span className="stat-label">Pending</span>
-                  <span className="stat-value">{analytics.bookingStats?.pending || 0}</span>
-                </div>
-                <div className="booking-stat-item cancelled">
-                  <span className="stat-label">Cancelled</span>
-                  <span className="stat-value">{analytics.bookingStats?.cancelled || 0}</span>
-                </div>
-              </div>
+              <ChartBar type="pie" data={analytics.bookingStats || {}} />
             </div>
 
             <div className="section-card">
               <h3>Top Performing Tours</h3>
-              <ul className="top-tours-list">
-                {(analytics.topTours || []).length === 0 && <li>No packages yet</li>}
-                {(analytics.topTours || []).map((tour) => (
-                  <li key={tour.name}>
-                    <span className="tour-name">{tour.name}</span>
-                    <span className="tour-bookings">{tour.bookings} bookings</span>
-                    <span className="tour-revenue">{formatCurrency(tour.revenue)}</span>
-                  </li>
-                ))}
-              </ul>
+              <ChartBar type="bar" data={(analytics.topTours || []).map(t => ({ label: t.name, value: t.bookings }))} />
             </div>
 
             <div className="section-card">

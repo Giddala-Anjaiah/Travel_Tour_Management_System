@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { Save, Settings as SettingsIcon } from 'lucide-react'
+import { API_BASE } from '../../api'
+import { useState } from 'react'
+import { Save } from 'lucide-react'
 import OperatorLayout from './OperatorLayout'
 import '../Dashboard.css'
 
@@ -29,7 +30,7 @@ const OperatorSettingsPage = () => {
     setIsSaving(true)
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:5000/api/operator/settings', {
+      const response = await fetch(API_BASE + '/operator/settings', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

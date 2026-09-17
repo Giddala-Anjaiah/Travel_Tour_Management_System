@@ -57,7 +57,7 @@ body {
 .navbar-content {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 1.5rem;
+  padding: 0 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1110,6 +1110,10 @@ body {
 }
 
 @media (max-width: 480px) {
+  .navbar-content {
+    padding: 0 1rem;
+  }
+
   .hero {
     padding: 7rem 1rem 5rem;
   }
@@ -1171,6 +1175,10 @@ body {
 
   .stat-number {
     font-size: 2rem;
+  }
+
+  .stat-image {
+    height: 150px;
   }
 
   .pricing-card {
