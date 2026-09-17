@@ -2,6 +2,7 @@ import { Plane } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
 import './Auth.css'
+import { API_BASE } from './api'
 
 const Signup = () => {
   const [selectedRole, setSelectedRole] = useState('customer')
@@ -31,7 +32,7 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:5000/api/signup', {
+      const response = await fetch(`${API_BASE}/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

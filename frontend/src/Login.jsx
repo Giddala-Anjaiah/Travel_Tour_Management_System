@@ -2,6 +2,7 @@ import { Plane } from 'lucide-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import './Auth.css'
+import { API_BASE } from './api'
 
 const Login = () => {
   const navigate = useNavigate()
@@ -31,7 +32,7 @@ const Login = () => {
     setSuccess('')
 
     try {
-      const response = await fetch('http://localhost:5000/api/login', {
+      const response = await fetch(`${API_BASE}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
