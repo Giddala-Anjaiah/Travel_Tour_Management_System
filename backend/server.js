@@ -4,14 +4,38 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+function normalizeCorsOrigin(origin) {
+  if (!origin) return undefined;
+  try {
+    const url = new URL(origin);
+    if (url.protocol === 'https:' || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+      return origin;
+    }
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+const jwtSecret = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
+if (!process.env.JWT_SECRET) {
+  console.warn('JWT_SECRET not set — using ephemeral fallback. Set this in production environment.');
+}
+
+app.use(cors({
+  origin: (origin, callback) => {
+    const allowed = normalizeCorsOrigin(origin);
+    callback(null, allowed);
+  },
+  credentials: true,
+}));
 app.use(express.json());
 
 // MongoDB Connection
@@ -707,7 +731,7 @@ function authenticate(req, res, next) {
     return res.status(401).json({ message: 'Unauthorized' });
   }
   try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = jwt.verify(token, jwtSecret);
     next();
   } catch {
     return res.status(401).json({ message: 'Invalid or expired token' });
@@ -895,7 +919,7 @@ app.post('/api/login', async (req, res) => {
     // Generate JWT token
     const token = jwt.sign(
       { userId: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
+      jwtSecret,
       { expiresIn: '24h' }
     );
 
